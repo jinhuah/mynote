@@ -1,0 +1,53 @@
+Selenium Tips: CSS Selectors in Selenium Demystified
+This post will show you some advanced CSS rules and pseudo-classes that will help you move your XPATH locators to CSS, a native approach on all browsers.
+Next sibling
+Our first example is useful for navigating lists of elements, such as forms or ul items. The next sibling will tell selenium to find the next adjacent element on the page that’s inside the same parent. Let’s show an example using a form to select the field after username.
+<form>
+<input class="username"></input>
+<input class="alias"></input>
+</form>
+Let’s write a css selector that will choose the input field after “username”. This will select the “alias” input, or will select a different element if the form is reordered.
+css=form input.username + input
+Attribute values
+If you don’t care about the ordering of child elements, you can use an attribute selector in selenium to choose elements based on any attribute value. A good example would be choosing the ‘username’ element of the form without adding a class.
+<form>
+<input name="username"></input>
+<input name="password"></input>
+<input name="continue" type="button"></input>
+<input name="cancel" type="button"></input>
+</form>
+We can easily select the username element without adding a class or an id to the element.
+css=form input[name='username']
+We can even chain filters to be more specific with our selections.
+css=input[name='continue'][type='button']
+Here Selenium will act on the input field with name=”continue” and type=”button”
+Choosing a specific match
+CSS selectors in Selenium allow us to navigate lists with more finess that the above methods. If we have a ul and we want to select its fourth li element without regard to any other elements, we should use nth-child or nth-of-type.
+<ul id="recordlist">
+<p>Heading</p> 
+<li>Cat</li> 
+<li>Dog</li> 
+<li>Car</li> 
+<li>Goat</li> 
+</ul>
+If we want to select the fourth li element (Goat) in this list, we can use the nth-of-type, which will find the fourth li in the list.
+css=ul#recordlist li:nth-of-type(4)
+On the other hand, if we want to get the fourth element only if it is a li element, we can use a filtered nth-child which will select (Car) in this case.
+css=ul#recordlist li:nth-child(4)
+Note, if you don’t specify a child type for nth-child it will allow you to select the fourth child without regard to type. This may be useful in testing css layout in selenium.
+css=ul#recordlist *:nth-child(4)
+Sub-string matches
+CSS in Selenium has an interesting feature of allowing partial string matches using ^=, $=, or *=. I’ll define them, then show an example of each:
+^=Match a prefix
+$=Match a suffix
+*=Match a substring
+css=a[id^='id_prefix_']
+A link with an “id” that starts with the text “id_prefix_”
+css=a[id$='_id_sufix']
+A link with an “id” that ends with the text “_id_sufix”
+css=a[id*='id_pattern']
+A link with an “id” that contains the text “id_pattern”
+Matching by inner text
+And last, one of the more useful pseudo-classes, :contains() will match elements with the desired text block:
+css=a:contains('Log Out')
+This will find the log out button on your page no matter where it’s located. This is by far my favorite CSS selector and I find it greatly simplifies a lot of my test code.

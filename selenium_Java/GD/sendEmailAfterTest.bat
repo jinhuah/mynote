@@ -1,0 +1,1 @@
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe C:\Users\Jinhua\Test\Saiku-UI-test\sendEmailWithAttachment.ps1

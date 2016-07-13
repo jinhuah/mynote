@@ -1,0 +1,118 @@
+curl -X POST "https://54.185.199.38/log/343?message="123""
+
+1)get
+
+https://54.185.199.38/get/user_id/app_id/key_name
+
+Example
+Javascript demo
+https://54.185.199.38/get/333/demo/day
+
+Anything in the server Json object, you can run:
+https://54.185.199.38/get/append_user/public_app/birthday
+https://54.185.199.38/get/write_once_user/public_app/name
+
+If DNS server is not setup, you can try using "-k" flag, which will not verify the certificate
+curl -k -X GET "https://54.185.199.38/get/write_once_user/public_app/name"
+
+Once it setup, run below.
+curl -X GET "https://jhmds.geniusdigital.tv/get/write_once_user/public_app/name"
+
+curl -X GET "https://jhmds.geniusdigital.tv/get/333/demo/day"
+
+
+2)set
+/set/user_id/app_id?set_type=&privacy_type=
+curl -k -H "Content-Type: application/json" -X POST -d '{"key":"day","value":"Friday","type":"string"}' "https://54.185.199.38/set/333/demo?set_type=ignore_history&privacy_type=public"
+
+curl -k -H "Content-Type: application/json" -X POST -d '{"key":"123","value":"456","type":"string"}' "https://54.185.199.38/set/jh_user/jh_app?set_type=ignore_history&privacy_type=public"
+
+curl -k -H "Content-Type: application/json" -X POST -d '{"key":"123","value":"456","type":"string"}' "https://jhmds.geniusdigital.tv/set/jh_user/jh_app?set_type=ignore_history&privacy_type=public"
+
+data will be written to:
+public/jh_user/123.json:{"key":"123","value":"456","type":"string","lastModified":1431424774,"appId":"jh_app"}
+
+curl -H "Content-Type: application/json" -X POST -d '{"key":"124","value":"457","type":"number"}' "https://jhmds.geniusdigital.tv/set/jh_user/jh_app?set_type=add_number&privacy_type=public"
+curl -H "Content-Type: application/json" -X POST -d '{"key":"124","value":"457","type":"number"}' "https://jhmds.geniusdigital.tv/set/jh_user/jh_app?set_type=append&privacy_type=public"
+curl -H "Content-Type: application/json" -X POST -d '{"key":"124","value":"458","type":"number"}' "https://jhmds.geniusdigital.tv/set/jh_user/jh_app?set_type=append&privacy_type=public"
+
+
+-1) write_once - the value on the server is only stored the first time it is logged.
+curl -H "Content-Type: application/json" -X POST -d '{"key":"124","value":"458","type":"number"}' "https://jhmds.geniusdigital.tv/set/jh_user/jh_app?set_type=write_once&privacy_type=public"
+
+-2) keep_history - the value on the server is overwritten but previous values are retained with a datestamp for server side analytics. 
+curl -H "Content-Type: application/json" -X POST -d '{"key":"124","value":"458","type":"number"}' "https://jhmds.geniusdigital.tv/set/jh_user/jh_app?set_type=keep_history&privacy_type=public"
+
+-3) ignore_history - the value on the server is overwritten and previous values are discarded
+curl -H "Content-Type: application/json" -X POST -d '{"key":"124","value":"458","type":"number"}' "https://jhmds.geniusdigital.tv/set/jh_user/jh_app?set_type=ignore_history&privacy_type=public"		
+
+-4) add_number - the value on the server is added to by the number passed. 
+curl -H "Content-Type: application/json" -X POST -d '{"key":"124","value":"458","type":"number"}' "https://jhmds.geniusdigital.tv/set/jh_user/jh_app?set_type=add_number&privacy_type=public"		json object: {"key":"124","value":"458","type":"number","lastModified":1431441025,"appId":"jh_app"
+curl -H "Content-Type: application/json" -X POST -d '{"key":"124","value":"458","type":"number"}' "https://jhmds.geniusdigital.tv/set/jh_user/jh_app?set_type=add_number&privacy_type=public"		json object: {"key":"124","value":916,"type":"number","lastModified":1431441155,"appId":"jh_app"
+
+
+-5) append - the value on the server has the value passed appended to it. 
+curl -H "Content-Type: application/json" -X POST -d '{"key":"124","value":"458","type":"number"}' "https://jhmds.geniusdigital.tv/set/jh_user/jh_app?set_type=append&privacy_type=public"
+
+
+
+
+3) Log
+/log/user_id?message=
+
+https://54.185.199.38/log/345?message="jinhua"
+https://54.185.199.38/log/3455?message="jinhua"
+
+curl -k -X POST https://54.185.199.38/log/3455?message="jinhua"
+public/log/3456.log
+curl -X POST https://jhmds.geniusdigital.tv/log/3450?message="jinhua"
+curl -X POST https://jhmds.geniusdigital.tv/log/3450?message=jinhua1
+public/log/3450.log
+
+4) Debug
+/debug/user_id 
+https://54.185.199.38/debug/user_id
+
+curl -k -X GET "https://54.185.199.38/debug/345"
+curl -X POST https://jhmds.geniusdigital.tv/debug/345
+
+5) Upload
+Use "PUT". 
+"POST" is not working!!! - Instruction needs to update.
+https://54.185.199.38/put/app_id/filename 
+
+curl -k --form file=@/tmp/jhfile.txt -X PUT "https://54.185.199.38/put/app_jh/jhfile.txt"
+
+curl --form file=@/home/genius/insight-douc/vagrant/system-test/custom-environment -X PUT "https://jhmds.geniusdigital.tv/put/app_jh/jhfile.txt"
+curl --form file=@/home/genius/insight-douc/vagrant/system-test/custom-environment -X POST "https://jhmds.geniusdigital.tv/put/app_jh/jhfile.txt"  <-- not working, no data passed.
+
+curl -d '<test/>' -X PUT "https://jhmds.geniusdigital.tv/put/app_jh/jhfile-3.txt"
+
+# The file will be uploaded into
+/var/www/html/secret/uploads/jhfile.txt
+
+
+<?xml version:"1.0" encoding="UTF-8"?><channels xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns='http://www.geniusdigital.tv' xsi:schemaLocation='http:/www.geniusdigital.tv schedule_import.xsd' schemaVersion="0.5.0"><export_metadata> <file_generation_system>v2API</file_generation_system><file_generation_utc_epoch>1431434188875</file_generation_utc_epoch><file_generation_tz_offset>3600</file_generation_tz_offset><effective_from_utc_epoch>1431434188875</effective_from_utc_epoch><import_type>COMPLETE_KEEP_HISTORY</import_type></export_metadata> <channel_group><full_label></full_label><short_label></short_label><channel_variants> <channel_variant><consumption_channel_ref>3479300759</consumption_channel_ref><full_label></full_label><short_label></short_label><epg_digits></epg_digits></channel_variant> </channel_variants> </channel_group> </channels>
+
+curl -d '<test/>' -X PUT "https://jhmds.geniusdigital.tv/put/app_jh/jhfile-3.txt"
+--data-urlencoded
+
+Upload channel data into MDS server.
+
+The double quotes in the data string need to be excaped with "\"
+
+curl -H "Content-Type: application/xml" -d "<?xml version:\"1.0\" encoding=\"UTF-8\"?><channels xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns='http://www.geniusdigital.tv' xsi:schemaLocation='http:/www.geniusdigital.tv schedule_import.xsd' schemaVersion=\"0.5.0\"><export_metadata> <file_generation_system>v2API</file_generation_system><file_generation_utc_epoch>1431434188875</file_generation_utc_epoch><file_generation_tz_offset>3600</file_generation_tz_offset><effective_from_utc_epoch>1431434188875</effective_from_utc_epoch><import_type>COMPLETE_KEEP_HISTORY</import_type></export_metadata> <channel_group><full_label></full_label><short_label></short_label><channel_variants> <channel_variant><consumption_channel_ref>3479300759</consumption_channel_ref><full_label></full_label><short_label></short_label><epg_digits></epg_digits></channel_variant> </channel_variants> </channel_group> </channels>" -X PUT "https://jhmds.geniusdigital.tv/put/app_tareq/channel.xml"
+
+
+curl -d "<?xml version:\"1.0\" encoding=\"UTF-8\"?><channels xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'" -X PUT "https://jhmds.geniusdigital.tv/put/app_jh/jhfile-5.txt"
+
+curl -H "Content-Type: application/xml" -d "<?xml version:\"1.0\" encoding=\"UTF-8\"?><channels xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'" -X PUT "https://jhmds.geniusdigital.tv/put/app_jh/jhfile-6.txt"
+
+curl -H "Content-Type: application/xml" -d '{<?xml version:"1.0" encoding="UTF-8"?><channels xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'}' -X PUT "https://jhmds.geniusdigital.tv/put/app_jh/jhfile-6.txt"
+
+curl -H "Content-Type: application/xml" -d '<?xml version:"1.0" encoding="UTF-8"?><channels xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'' -X PUT "https://jhmds.geniusdigital.tv/put/app_jh/jhfile-6.txt"
+
+curl -d '<?xml version:"1.0" encoding="UTF-8"?><channels xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'' -X PUT "https://jhmds.geniusdigital.tv/put/app_jh/jhfile-6.txt"
+
+
+curl -H "Content-Type: application/xml" -d "<?xml version:\"1.0\" encoding=\"UTF-8\"?><channels xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns='http://www.geniusdigital.tv' xsi:schemaLocation='http:/www.geniusdigital.tv schedule_import.xsd' schemaVersion=\"0.5.0\"><export_metadata> <file_generation_system>v2API</file_generation_system><file_generation_utc_epoch>1431434188875</file_generation_utc_epoch><file_generation_tz_offset>3600</file_generation_tz_offset><effective_from_utc_epoch>1431434188875</effective_from_utc_epoch><import_type>COMPLETE_KEEP_HISTORY</import_type></export_metadata> <channel_group><full_label></full_label><short_label></short_label><channel_variants> <channel_variant><consumption_channel_ref>3479300759</consumption_channel_ref><full_label></full_label><short_label></short_label><epg_digits></epg_digits></channel_variant> </channel_variants> </channel_group> </channels>" -X PUT "https://jhmds.geniusdigital.tv/upload/app_jh/channel.xml"

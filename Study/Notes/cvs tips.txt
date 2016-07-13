@@ -1,0 +1,32 @@
+#You can get a short listing of differences using the cvs diff command:
+ cvs -q diff --brief
+ 
+ 
+ root@insighttest:~/sandbox/jh/HEAD# MON
+Index: server/apps/siamang/dev/include/mm_version.hh
+===================================================================
+RCS file: /CVS/MiriMon/server/apps/siamang/dev/include/mm_version.hh,v
+retrieving revision 1.260
+diff --brief -r1.260 mm_version.hh
+Files /tmp/cvslNaaEF and mm_version.hh differ
+Index: server/cgi-bin/Mirimon/Constants.pm
+===================================================================
+RCS file: /CVS/MiriMon/server/cgi-bin/Mirimon/Constants.pm,v
+retrieving revision 1.56
+diff --brief -r1.56 Constants.pm
+Files /tmp/cvsmNaaEF and Constants.pm differ
+
+
+root@insighttest:~/sandbox/jh/HEAD# cvs -qn update
+M server/apps/siamang/dev/include/mm_version.hhsta
+M server/cgi-bin/Mirimon/Constants.pm
+
+
+
+root@insighttest:~/sandbox/jh/HEAD# cvs -Q status | grep -i locally
+File: mm_version.hh     Status: Locally Modified
+File: Constants.pm      Status: Locally Modified
+
+
+Look at the CVS basic command set.
+http://wwwasd.web.cern.ch/wwwasd/cvs/tutorial/cvs_tutorial_3.html

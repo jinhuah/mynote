@@ -1,0 +1,208 @@
+#!/usr/bin/perl
+
+# **************************************************************************
+# Copyright (c) 2014 Genius Digital Limited.  All rights reserved.
+# **************************************************************************
+# The design and code of this computer program is protected by copyright law.
+# Ownership and rights reside with Genius Digital Limited.
+#
+# This software is provided by Genius Digital Ltd. "as is" and any expressed or
+# implied warranties or merchantability and fitness for a particular purpose
+# are disclaimed. In no event shall Genius Digital Ltd. or its contributors and
+# staff be liable for any direct, indirect, incidental, special, or
+# consequential damages (including but not limited to, procurement of
+# substitute goods or services; loss of use, data, or profits or business
+# interruption) however caused and on any basis of liability, whether in
+# contract, strict liability, or tort (including negligence or otherwise)
+# arising in any way out of the use of this software, even if advised of the
+# possibility of such damage.
+# **************************************************************************
+
+package mmsetip;
+use warnings;
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../www/cgi-bin";
+
+use Getopt::Long;
+use Pod::Usage;
+use Switch 'fallthrough';
+use Sys::Syslog;
+
+use Mirimon::Device;
+use Mirimon::DB;
+use Mirimon::Attribute;
+use Mirimon::Configuration::Assignment;
+use Mirimon::Configuration::Assignment::Cache;
+use Mirimon::Constants 0.003;
+use Mirimon::Device::String;
+use Mirimon::Global;
+use Mirimon::Output;
+use Mirimon::Log;
+use Mirimon::Settings;
+use Mirimon::SE;
+use Mirimon::SE::EventCodes 0.011;
+use Mirimon::Utils 0.012;
+use Mirimon::Output::Term::ProgressBar;
+
+#Mirimon::Log::set_logging_level ( Mirimon::Log::LOG_DEBUG );
+
+
+
+sub update {
+    my $device = shift;
+    my $upip = shift;
+    return unless $device;
+
+    if ( 1) {
+
+        my %d;
+
+        $d{uid} = $device->id;
+        $d{'instance'} = $device->instance;
+        $d{ip} = $upip;
+
+        my $agent = $device;
+
+        if ( defined $agent ) {
+
+            # Ensure these are loaded
+            $agent->attributes;
+
+            Mirimon::Log::log ( Mirimon::Log->LOG_DEBUG,
+                                "Device exists");
+
+            # Already exists - update any params...
+
+            my $now_str = Mirimon::Utils::format_date(time);
+
+            $agent->_update_attributes ( \%d );
+            $agent->do_pending_db_updates();
+
+            Mirimon::Log::log ( Mirimon::Log->LOG_INFO,
+                          "*EXISTING* Device. UID '" . $agent->uid() . "__" . $agent->instance() . " -> id " . $agent->id() );
+
+        } else {
+
+            Mirimon::Log::log ( Mirimon::Log->LOG_DEBUG,
+                                "No such device");
+
+        }
+    }
+
+    return;
+}
+
+
+########################################################################
+# Globals
+
+my %opt;
+my $VERSION = '0.001';
+
+########################################################################
+# Constants
+
+########################################################################
+# Main
+sub main {
+
+# Get the parameters supplied
+%opt = (
+        syslog => 1,
+        syslog_facility => 'user',
+        syslog_level => 'info',
+        progress => 1,
+        event => 1,
+       );
+
+my $g_OptionsFound =
+  GetOptions (\%opt,
+              'help|?',
+              'man|m',
+              'device|d=s',
+              'ip_address|i=s',
+              'verbose|v!',
+              'debug|d!',
+             );
+
+pod2usage(-exitstatus => 1, -verbose => 1) unless ($g_OptionsFound &&
+                                                   scalar keys(%opt));
+
+pod2usage(-exitstatus => 0, -verbose => 1) if ($opt{help});
+pod2usage(-exitstatus => 0, -verbose => 2) if ($opt{man});
+pod2usage(-exitstatus => 0, -verbose => 1) if (!defined $opt{device});
+
+Mirimon::Log::set_logging_level ( Mirimon::Log->LOG_INFO ) if $opt{verbose};
+Mirimon::Log::set_logging_level ( Mirimon::Log->LOG_DEBUG ) if $opt{debug};
+
+$| = 1 if $opt{progress};
+
+my $device_id = $opt{device} || "";
+my $ip_addr   = $opt{ip_address} || "127.0.0.1";
+
+# Perform the requested action
+
+
+
+    my $d = Mirimon::Device->from_db_id ( $device_id ) ||
+          die "Failed to load device";
+
+    mmsetip::update ( $d ,  $ip_addr);
+
+}
+
+main() unless caller;
+1;
+
+__END__
+
+=head1 NAME
+
+Mirimon Geo Location Import Tool
+
+=head1 SYNOPSIS
+
+  mmsetip --device <meid> --ip <ip_address> 
+
+ Actions:
+   --help                     | -h  Display brief help message
+   --man                      |     Display man page
+   --verbose                  | Verbose logging
+   --debug                    | Debug logging
+
+=head1 ACTIONS
+
+=over 4
+
+=item B<--help>, B<-h>
+
+Print a brief help message and exit.
+
+=item B<--man>, B<-m>
+
+Display the man page.
+
+
+=back
+
+=head1 DESCRIPTION
+
+=head2 COMMAND
+
+=over 4
+
+B<mmsetip> sets a MiriMON device IP address attribute usually for test
+
+=back
+
+
+=head1 EXAMPLES
+
+Do an import with some details of the changes
+
+    mmsetip --device 1234 --ip_address 10.12.34.22
+
+=cut

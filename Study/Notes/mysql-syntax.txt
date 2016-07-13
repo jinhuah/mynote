@@ -1,0 +1,423 @@
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mirimon002         |
+| test               |
++--------------------+
+3 rows in set (0.03 sec)
+
+mysql> show tables in mirimon002;
++------------------------------+
+| Tables_in_mirimon002         |
++------------------------------+
+| analysis_group               |
+| broadcaster                  |
+| ca_state                     |
+| cb_assign_cache              |
+| cb_assign_preset             |
+| cb_assign_value              |
+| cb_map                       |
+| ci_config                    |
+| ci_process                   |
+| ci_rule                      |
+| ci_state                     |
+| co_status                    |
+| component                    |
+| content_channel              |
+| content_timeshift            |
+| content_vod                  |
+| device                       |
+| device_attribute             |
+| device_attribute_enum        |
+| device_attribute_ipv4        |
+| device_attribute_link        |
+| device_attribute_mac         |
+| device_attribute_number      |
+| device_attribute_string      |
+| device_group                 |
+| device_group_device_link     |
+| device_group_subscriber_link |
+| device_note                  |
+| device_region_map            |
+| device_search                |
+| device_string                |
+| device_topology_map          |
+| event_field_def              |
+| event_field_value            |
+| kpi_defs                     |
+| kpi_defs_field               |
+| kpi_group                    |
+| kpi_group_attribute          |
+| kpi_group_field              |
+| kpi_group_link               |
+| kpi_ranges                   |
+| kpi_settings                 |
+| kpi_sorts                    |
+| kpi_types                    |
+| manufacturer                 |
+| me_setting                   |
+| me_setting_detail            |
+| me_subcomponent              |
+| mirimon_settings             |
+| models                       |
+| ms_subcomponent              |
+| network_type                 |
+| networks                     |
+| online_devices               |
+| raw_event                    |
+| raw_event_detail             |
+| raw_event_field              |
+| raw_event_group              |
+| raw_event_group_link         |
+| rca_def                      |
+| rca_link                     |
+| regions                      |
+| search_component_enum        |
+| search_component_internal    |
+| search_component_ipv4        |
+| search_component_mac         |
+| search_component_number      |
+| search_component_op          |
+| search_component_string      |
+| search_grouping              |
+| search_grouping_link         |
+| search_grouping_type         |
+| sig_event_action             |
+| sig_event_detail             |
+| sig_event_field              |
+| sig_event_group              |
+| sig_event_group_link         |
+| sig_event_long_term          |
+| sig_event_meta_data          |
+| sig_event_meta_detail        |
+| sig_event_meta_value         |
+| sig_event_short_term         |
+| stb_subcomponent             |
+| subscriber                   |
+| subscriber_category          |
+| sw_version                   |
+| system_details               |
+| token                        |
+| topology_element             |
+| user_pref                    |
+| user_pref_detail             |
+| user_sanction                |
+| users                        |
+| vod_id_map                   |
++------------------------------+
+94 rows in set (0.00 sec)
+
+
+mysql> use mirimon002;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> select database();
++------------+
+| database() |
++------------+
+| mirimon002 |
++------------+
+1 row in set (0.00 sec)
+
+
+
+Examples from internet:
+http://dev.mysql.com/doc/refman/5.0/en/getting-information.html
+
+mysql> SELECT DATABASE();
++------------+
+| DATABASE() |
++------------+
+| menagerie  |
++------------+
+
+mysql> SHOW TABLES;
++---------------------+
+| Tables_in_menagerie |
++---------------------+
+| event               |
+| pet                 |
++---------------------+
+
+mysql> DESCRIBE pet;
++---------+-------------+------+-----+---------+-------+
+| Field   | Type        | Null | Key | Default | Extra |
++---------+-------------+------+-----+---------+-------+
+| name    | varchar(20) | YES  |     | NULL    |       |
+| owner   | varchar(20) | YES  |     | NULL    |       |
+| species | varchar(20) | YES  |     | NULL    |       |
+| sex     | char(1)     | YES  |     | NULL    |       |
+| birth   | date        | YES  |     | NULL    |       |
+| death   | date        | YES  |     | NULL    |       |
++---------+-------------+------+-----+---------+-------+
+
+mysql> select * from sig_event_long_term where FK_sig_event_detail__id = 162 limit 2;
++--------------+----------------+--------------------+-------------------------+------------------+-------------------+----------------+-----------------+-----------+--------+--------+--------+--------+--------+------------+------------+------------+------------+
+| sig_event_id | FK_me_info__id | FKreal_me_info__id | FK_sig_event_detail__id | origination_secs | origination_msecs | me_delay_msecs | sequence_number | meta_data | flags  | data_0 | data_1 | data_2 | data_3 | register_0 | register_1 | register_2 | register_3 |
++--------------+----------------+--------------------+-------------------------+------------------+-------------------+----------------+-----------------+-----------+--------+--------+--------+--------+--------+------------+------------+------------+------------+
+|    163541774 |            501 |                501 |                     162 |       1382353949 |               852 |              0 |              10 |         0 | 327680 |    500 |      0 |      0 |      0 |          1 |          0 |          1 |          0 |
+|    163541775 |            502 |                502 |                     162 |       1382353949 |               852 |              0 |              10 |         0 | 327680 |    500 |      0 |      0 |      0 |          2 |          0 |          1 |          0 |
++--------------+----------------+--------------------+-------------------------+------------------+-------------------+----------------+-----------------+-----------+--------+--------+--------+--------+--------+------------+------------+------------+------------+
+2 rows in set (0.00 sec)
+
+2) Convert epoch time to human readible time:
+
+select  ref_linear_session_live.utc_start_epoch as Date, 1 as UsageType, 0 as panelID,
+ dim_identity.external_device as devID, 
+ 0 as instID,
+ 0 as metuNo,
+
+ dateadd(s, ref_linear_session_live.utc_start_epoch, '19700101') as session_start,
+ dateadd(s, ref_linear_session_live.utc_stop_epoch, '19700101') as session_stop,
+ (ref_linear_session_live.utc_stop_epoch - ref_linear_session_live.utc_start_epoch) as duration,
+ dim_linear_service.external_channel_id as channel_id
+
+ FROM
+ ref_linear_session_live 
+ LEFT JOIN
+ dim_linear_service on ref_linear_session_live.fk_linear_service = dim_linear_service.linear_service_id 
+ LEFT JOIN
+ dim_device on ref_linear_session_live.fk_device = dim_device.device_id
+ LEFT JOIN
+ dim_identity on dim_device.fk_identity = dim_identity.identity_id
+ WHERE
+ (ref_linear_session_live.utc_stop_epoch IS NOT NULL)
+ AND
+ (ref_linear_session_live.utc_stop_epoch > ref_linear_session_live.utc_start_epoch)
+ 
+ limit 100;
+ 
+ 3) Convert seconds to HHMMSS in postgreSQL old version:
+ 
+ select  ref_linear_session_live.utc_start_epoch as Date, 1 as UsageType, 0 as panelID,
+ dim_identity.external_device as devID, 
+ 0 as instID,
+ 0 as metuNo,
+ ref_linear_session_live.utc_start_epoch as session_start,
+ dateadd(s, ref_linear_session_live.utc_start_epoch, '19700101') as start_time,
+ ref_linear_session_live.utc_stop_epoch as session_stop, 
+ dateadd(s, ref_linear_session_live.utc_stop_epoch, '19700101') as stop_time,
+ (session_stop - session_start) as tmp,
+ 
+(((session_stop - session_start) / (24*3600))::text || ' days ' || 
+(((session_stop - session_start) % (24*3600)) / 3600 ) :: text || 'h' ||
+(((session_stop - session_start) % 3600) / 60 ) :: text || 'm' ||
+((session_stop - session_start) % 60 ) :: text || 's' ) as duration, 
+
+ dim_linear_service.external_channel_id as channel_id
+ FROM
+ ref_linear_session_live 
+ LEFT JOIN
+ dim_linear_service on ref_linear_session_live.fk_linear_service = dim_linear_service.linear_service_id 
+ LEFT JOIN
+ dim_device on ref_linear_session_live.fk_device = dim_device.device_id
+ LEFT JOIN
+ dim_identity on dim_device.fk_identity = dim_identity.identity_id
+ WHERE
+ (session_stop IS NOT NULL)
+ AND
+ (session_stop > session_start)
+ 
+ limit 100;
+ 
+ 4) PostgreSQL convert epoch time to date:
+ 
+SELECT (TIMESTAMP WITH TIME ZONE 'epoch' + ref_linear_session_live.utc_start_epoch * INTERVAL '1 second')::date -- cast timestamp to date;
+from ref_linear_session_live limit 10
+ 
+
+5) PostgreSQL trim characters:
+substring(CAST(2013101000 as CHAR(10)), 1, 8) as Date,
+
+result is: 20131010 <-- 10 charactors, start from 1, keep 8 charactors
+
+----
+
+select  dim_linear_service.external_channel_id as channel_id, 
+dim_linear_service.external_label,
+substring(CAST(fk_start_day as CHAR(10)), 1, 8) as Date,
+
+ dateadd(s,start_epoch,'19700101') as BeginTime, 
+ dateadd(s,stop_epoch,'19700101') as EndTime, 
+
+ dim_programme.programme_label as Title, 0,0,0,0,
+ dim_programme.genre,
+ dim_programme.episode_num as Episode_id, 
+ dim_programme.episode_label as Episode,
+ 0,0,0,0,0,0,0,0,0
+ from dim_schedule
+ LEFT JOIN dim_linear_service ON dim_schedule.fk_linear_service = dim_linear_service.linear_service_id
+ LEFT JOIN dim_programme ON dim_schedule.fk_programme = dim_programme.programme_id
+ ORDER BY Date
+ 
+ 
+5) Amazon redshift database
+http://docs.aws.amazon.com/redshift/latest/dg/cancel_query.html
+
+cancel a query
+------
+select pid, trim(user_name), starttime, substring(query,1,20) 
+from stv_recents
+where status='Running';
+------
+  pid  |   btrim    |         starttime          |      substring
+-------+------------+----------------------------+----------------------
+ 18764 | masteruser | 2013-03-28 18:39:49.355918 | select sellerid, fir
+(1 row)
+
+------
+cancel 18764;
+abort; <--ABORT or ROLLBACK. command to cancel the transaction and discard any changes made to the data.
+
+6) # mydql show all view tables.
+show full tables where table_type='view';
+
+7) # mysql - Dump all tables without data. This is to run under bash, not in mysql
+ mysqldump --no-data mirimon002 --user=root -pminime > /tmp/dump-defs-upgrade.sql
+ 
+8) # mysql count table rows.
+SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'mirimon002';
+
+USE mirimon002; SHOW TABLES; SELECT FOUND_ROWS();
+
++--------------+
+| FOUND_ROWS() |
++--------------+
+|          107 |
++--------------+
+1 row in set (0.00 sec)
+
+9) Display row header.
+SELECT column_name FROM information_schema.columns WHERE table_name='insert table name here';
+SELECT column_name FROM information_schema.columns WHERE table_name='geo_lookup';
++-------------+
+| column_name |
++-------------+
+| id          |
+| ip_address  |
+| lookup_time |
+| valid       |
+| geo_city    |
+| geo_region  |
+| geo_country |
+| isp         |
+| asn         |
+| geo_lat     |
+| geo_long    |
++-------------+
+11 rows in set (0.00 sec)
+
+10) Select without header
+SELECT id as "", name as "", job as "" FROM geo_lookup;
+
+11) Output to a file
+
+From http://www.tech-recipes.com/rx/1475/save-mysql-query-results-into-a-text-or-csv-file/
+
+SELECT order_id,product_name,qty
+FROM orders
+INTO OUTFILE '/tmp/orders.csv'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n';
+
+Using this command columns names will not be exported.
+
+11-1) output column name only
+# test="SELECT column_name FROM information_schema.columns where table_name='geo_lookup' INTO OUTFILE '/tmp/orders.csv' LINES TERMINATED BY ',';"
+# mysql -sN --user="$user" --password="$password" --database="$database" --execute="$test"
+
+12) describe table and then output into a file
+
+root@ip-10-214-153-217:/tmp# mysql -uroot -pminime --database="mirimon002" -e "describe geo_lookup" > geolookup.csv
+
+27/12/2015
+vagrant@homestead:~$ mysql --version
+mysql  Ver 14.14 Distrib 5.7.9, for Linux (x86_64) using  EditLine wrapper
+
+if there is "--sucure-file-priv" error, then:
+The default export file location is: /var/lib/mysql-files.
+You can export into this location, or reset the location.
+
+login to mysql database, SHOW VARIABLES Syntax below.
+
+mysql> show variables like 'secure_file_priv';
++------------------+-----------------------+
+| Variable_name    | Value                 |
++------------------+-----------------------+
+| secure_file_priv | /var/lib/mysql-files/ |
++------------------+-----------------------+
+1 row in set (0.00 sec)
+
+To reset the export location, do:
+???
+
+29/06/2016: show variables
+use mysql;
+
+show variables like '%log%'
++-----------------------------------------+-------------------------------------------------+
+| Variable_name                           | Value                                           |
++-----------------------------------------+-------------------------------------------------+
+| back_log                                | 80                                              |
+| binlog_cache_size                       | 32768                                           |
+| binlog_checksum                         | CRC32                                           |
+| binlog_direct_non_transactional_updates | OFF                                             |
+| binlog_error_action                     | IGNORE_ERROR                                    |
+| binlog_format                           | STATEMENT                                       |
+| binlog_gtid_simple_recovery             | OFF                                             |
+| binlog_max_flush_queue_time             | 0                                               |
+| binlog_order_commits                    | ON                                              |
+| binlog_row_image                        | FULL                                            |
+| binlog_rows_query_log_events            | OFF                                             |
+| binlog_stmt_cache_size                  | 32768                                           |
+| binlogging_impossible_mode              | IGNORE_ERROR                                    |
+| expire_logs_days                        | 0                                               |
+| general_log                             | OFF                                             |
+| general_log_file                        | /data/mysql_data/sov-srv-m620-dataw-01.log      |
+| innodb_api_enable_binlog                | OFF                                             |
+| innodb_flush_log_at_timeout             | 1                                               |
+| innodb_flush_log_at_trx_commit          | 1                                               |
+| innodb_locks_unsafe_for_binlog          | OFF                                             |
+==================
+
+root@ip-10-214-153-217:/tmp# cat geolookup.csv
+Field   Type    Null    Key     Default Extra
+id      int(11) NO      PRI     NULL    auto_increment
+ip_address      varchar(16)     NO      UNI     NULL
+lookup_time     datetime        YES     MUL     NULL
+valid   varchar(6)      YES             true
+geo_city        varchar(20)     YES             NULL
+geo_region      varchar(20)     YES             NULL
+geo_country     varchar(20)     YES             NULL
+isp     varchar(20)     YES             NULL
+asn     varchar(20)     YES             NULL
+geo_lat double(7,4)     YES             NULL
+geo_long        double(7,4)     YES             NULL
+
+13) describe table and then output into a file with "," as delimit.
+
+root@ip-10-214-153-217:/tmp# mysql -uroot -pminime --database="mirimon002" -e "describe geo_lookup" | sed 's/\t/,/g'  > geolookup.csv
+
+root@ip-10-214-153-217:/tmp# cat geolookup.csv
+Field,Type,Null,Key,Default,Extra
+id,int(11),NO,PRI,NULL,auto_increment
+ip_address,varchar(16),NO,UNI,NULL,
+lookup_time,datetime,YES,MUL,NULL,
+valid,varchar(6),YES,,true,
+geo_city,varchar(20),YES,,NULL,
+geo_region,varchar(20),YES,,NULL,
+geo_country,varchar(20),YES,,NULL,
+isp,varchar(20),YES,,NULL,
+asn,varchar(20),YES,,NULL,
+geo_lat,double(7,4),YES,,NULL,
+geo_long,double(7,4),YES,,NULL,
+
+14) asc and desc
+When you use these two, you need to use "order by".
+
+select * from sig_event_long_term order by sig_event_id desc limit 10;

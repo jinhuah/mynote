@@ -1,0 +1,8 @@
+Saiku 2.4 UI Bug Report
+
+1. "Add new folder" button will disapear when you click a saved query in Repository.
+
+2. When a folder name contains a space, the folder can be created but cannot be deleted.
+
+3. "Non-empty" button is not functional reliably. It has to be clicked several times to get non-empty output.
+

@@ -1,0 +1,803 @@
+Selenium and Java codes
+
+1. Drag and drop
+		Actions builder = new Actions(driver);
+		Action dragAndDrop = builder.clickAndHold(seletion3).moveToElement(target3).release(target3).build();
+		dragAndDrop.perform();
+		
+2. 	
+public void drag(WebElement element,WebElement target)
+	{
+		Actions move = new Actions(driver);
+		Action action = move.dragAndDrop(element, target).build();
+		action.perform();
+	}
+
+	// This method is only working on Windows Internet explorer and Firefox
+	
+public void dragAndDrop(WebElement src, WebElement des) {
+		/*		WebDriver driver = new FirefoxDriver();
+
+		driver.get(url);
+		driver.manage().timeouts().implicitlyWait(3,TimeUnit.MINUTES);
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
+		 */
+		Actions act = new Actions(driver);
+		//		WebElement src = driver.findElement(By.xpath("//div[@id='items']/div[1]"));
+		//	    WebElement des = driver.findElement(By.id("trash"));
+
+		act.clickAndHold(src).build().perform();                //For each action we need to build and Perform
+		act.moveToElement(des).build().perform();
+		act.release(des).build().perform();
+}
+
+3. Dependency
+
+	@Priority(2)
+	@Test //(dependsOnMethods={"createQuery"})
+	
+4. Setup driver
+
+	public void createDriver()
+	{
+		try {
+			URL url = new URL(seleniumUrl);
+			driver = new RemoteWebDriver(url, capabilities);
+			driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+			driver.manage().timeouts().setScriptTimeout(5, TimeUnit.SECONDS);
+		} catch (MalformedURLException ex) {
+			Logger.getLogger(testFunctionsBase.class.getName()).log(Level.SEVERE, null, ex);
+		}
+	}
+
+	public void setup(String browser, String platform) {
+		System.out.println("setup"+browser+platform);
+		//		DesiredCapabilities capabilities=null;
+
+		//Browsers
+		if(browser.equalsIgnoreCase("firefox")){
+			System.out.println("firefox");
+			capabilities.setBrowserName(DesiredCapabilities.firefox().getBrowserName());
+
+			//		capabilities.setPlatform(org.openqa.selenium.Platform.ANY);
+			//capability.setVersion("");
+
+		}
+
+		if(browser.equalsIgnoreCase("iexplore")){
+			System.out.println("iexplore");
+			//			capability= DesiredCapabilities.internetExplorer();
+			//			capability.setBrowserName("iexplore");
+			//			capability.setPlatform(org.openqa.selenium.Platform.WINDOWS);
+			capabilities.setBrowserName(DesiredCapabilities.internetExplorer().getBrowserName());
+			//capabilities.setPlatform(org.openqa.selenium.Platform.WINDOWS);
+			//capability.setVersion("");
+		}
+
+		if(browser.equalsIgnoreCase("chrome")){
+			System.out.println("chrome");
+			//			capability= DesiredCapabilities.chrome();
+			//			capability.setBrowserName("chrome");
+			//			capability.getBrowserName();
+			capabilities.setBrowserName(DesiredCapabilities.chrome().getBrowserName());
+			//capabilities.setPlatform(org.openqa.selenium.Platform.ANY);
+			//capability.setVersion("");
+		}
+
+		//Platforms
+		if(platform.equalsIgnoreCase("Windows")){
+			System.out.println("Windows");
+			capabilities.setPlatform(org.openqa.selenium.Platform.WINDOWS);
+		}
+
+		if(platform.equalsIgnoreCase("Linux")){
+			System.out.println("Linux");
+			capabilities.setPlatform(org.openqa.selenium.Platform.LINUX);
+		}
+
+		try {
+			URL url = new URL(seleniumUrl);
+			driver = new RemoteWebDriver(url, capabilities);
+
+			driver.manage().window().setPosition(new Point(0, 0));
+			driver.manage().window().setSize(new Dimension(1220, 900));
+
+			driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+			driver.manage().timeouts().setScriptTimeout(5, TimeUnit.SECONDS);
+
+			driver.get(baseUrl);
+		}
+		catch (MalformedURLException ex) {
+			Logger.getLogger(testFunctionsBase.class.getName()).log(Level.SEVERE, null, ex);
+		}
+	}
+
+	
+5. login
+
+	public void loginSuccess() {
+		System.out.println("Try to login");
+
+		//		capabilities.setBrowserName(DesiredCapabilities.firefox().getBrowserName());
+		//		capabilities.setPlatform(Platform.WINDOWS);
+
+		//		createDriver();
+
+		//		driver.get(baseUrl);
+
+		for (int second = 0;; second++) {
+			if (second >= 60) fail("timeout");
+			try { if (isElementPresent(By.id("ui-dialog-title-1"))) break; } catch (Exception e) {}
+
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException ex) {
+				System.out.println("Interrupted: " + ex.getCause());
+			}
+		}
+
+		// Check dialog is shown along with Login Text
+		if(isElementPresent(By.id("ui-dialog-title-1")))
+		{
+			getElement(By.id("username")).clear();
+			getElement(By.id("username")).sendKeys(username);
+			getElement(By.id("password")).clear();
+			getElement(By.id("password")).sendKeys(password);
+			getElement(By.linkText(" Login ")).click();
+
+			// Slight sleep while wait for login to complete
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				System.out.println("Sleep interrupted: " + e.getCause());
+			}
+
+			// Login should be successful so header & tabs will be displayed
+			Assert.assertTrue(getElement(By.id("header")).isDisplayed(),"Header not displayed, therefore login unsuccessful" );
+			Assert.assertTrue(getElement(By.id("tab_panel")).isDisplayed(), "Tab Panel not displayed, therefore login unsuccessful");
+		}
+		else
+		{
+			fail("Login dialogue not found");
+		}
+	}
+	
+	
+6. Data provider
+	
+		@DataProvider(name = "browsers")
+	public static Object[][] browsers() {
+		return new Object[][]{
+				//	{DesiredCapabilities.firefox().getBrowserName(), Platform.LINUX},
+				//	{DesiredCapabilities.chrome().getBrowserName(), Platform.LINUX},
+				{DesiredCapabilities.internetExplorer().getBrowserName(), Platform.WINDOWS},
+				{DesiredCapabilities.firefox().getBrowserName(), Platform.WINDOWS},
+				//	{DesiredCapabilities.chrome().getBrowserName(), Platform.WINDOWS},
+
+		};
+	}
+	
+7. Try
+	
+			for (int second = 0;; second++) {
+			if (second >= 60) fail("timeout");
+			try { if (isElementPresent(By.id("ui-dialog-title-1"))) break; } catch (Exception e) {}
+
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException ex) {
+				System.out.println("Interrupted: " + ex.getCause());
+			}
+		}
+		
+    try {
+      Class theClass  = Class.forName(aArguments[0]);
+      Interpreter interpreter = (Interpreter)theClass.newInstance();
+      Console console = new Console(interpreter);
+      console.run();
+    }
+    catch ( ClassNotFoundException ex ){
+      System.err.println( ex + " Interpreter class must be in class path.");
+    }
+    catch( InstantiationException ex ){
+      System.err.println( ex + " Interpreter class must be concrete.");
+    }
+    catch( IllegalAccessException ex ){
+      System.err.println( ex + " Interpreter class must have a no-arg constructor.");
+    }
+  }
+  
+  try {
+  InputStream input = new FileInputStream("c:\\data\\...");
+  System.out.println("File opened...");
+
+} catch (IOException e){
+  System.err.println("File opening failed:");
+  e.printStackTrace();
+}
+
+Expections
+http://www.tutorialspoint.com/java/java_exceptions.htm	
+	
+8. Mouse over
+
+Actions builder = new Actions(driver);
+builder.MoveToElement(menu).MoveToElement(submenu).Click().Perform();
+
+It works under Chrome, but doesn't work in FF
+
+or 
+
+9. wait condition
+http://docs.seleniumhq.org/docs/04_webdriver_advanced.jsp
+---
+WebDriver driver = new FirefoxDriver();
+driver.get("http://somedomain/url_that_delays_loading");
+WebElement myDynamicElement = (new WebDriverWait(driver, 10))
+  .until(ExpectedConditions.presenceOfElementLocated(By.id("myDynamicElement")));
+  
+---  
+WebDriverWait wait = new WebDriverWait(driver, 10);
+WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.id("someid")));
+
+---
+implicitlyWait
+An implicit wait is to tell WebDriver to poll the DOM for a certain amount of time when trying 
+to find an element or elements if they are not immediately available. The default setting is 0. 
+Once set, the implicit wait is set for the life of the WebDriver object instance.
+
+WebDriver driver = new FirefoxDriver();
+driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+driver.get("http://somedomain/url_that_delays_loading");
+WebElement myDynamicElement = driver.findElement(By.id("myDynamicElement"));
+
+---
+pageLoadTimeout
+http://assertselenium.com/2013/01/29/webdriver-wait-commands/
+
+driver.manage().timeouts().pageLoadTimeout(100, SECONDS);
+
+---
+setScriptTimeout
+
+driver.manage().timeouts().setScriptTimeout(100,SECONDS);
+
+---
+FluentWait
+
+// Waiting 30 seconds for an element to be present on the page, checking
+   // for its presence once every 5 seconds.
+   Wait<WebDriver> wait = new FluentWait<WebDriver>(driver)
+       .withTimeout(30, SECONDS)
+       .pollingEvery(5, SECONDS)
+       .ignoring(NoSuchElementException.class);
+
+   WebElement foo = wait.until(new Function<WebDriver, WebElement>() {
+     public WebElement apply(WebDriver driver) {
+       return driver.findElement(By.id("foo"));
+     }
+   });
+   
+ 10. Firefox profile native event -- It is supposed to set nativeEvent "true" when use "actions" in the code. But it is not working.
+  capabilities.setCapability("nativeEvents", true);
+
+ 11. Contain texts
+  driver.findElement(By.tagName("body")).getText().contains("Some text to search");
+  
+ 12. wait.until - expect condition
+ http://selenium.googlecode.com/git/docs/api/java/org/openqa/selenium/support/ui/ExpectedConditions.html
+ 
+ 13: testng.xml exclude example
+ https://github.com/cbeust/testng/blob/master/src/test/resources/testng.xml
+ 
+ 14: Delete a directory
+ 
+ 		// Delete screenshot directory if it exists
+		File dir = new File(screenshotPath);
+		if (dir.exists()) {
+			System.out.println("The directory exits");
+			if (dir.isDirectory()) {
+				try {
+					FileUtils.deleteDirectory(dir);
+					if (dir.exists()) {
+						fail("The directory is not deleted");
+					}
+				}
+				catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		try {
+			if (!file.exists())
+				System.out.println("It doesn't exist in the first place.");
+			else if (file.isDirectory() && file.list().length > 0)
+				System.out.println("It's a directory and it's not empty.");
+			else {
+				file.delete();
+				System.out.println("Delete the file");
+			}
+		} catch (SecurityException e) {
+			System.out.println("The file can't be deleted");
+			e.printStackTrace();
+		}
+		
+ 15: reporter.log
+ 
+ //		Reporter.log(“<a href=’”+ file.getAbsolutePath()+”/selenium-reports/html/” + result.getName() + “.jpg’> <img src=’”+ file.getAbsolutePath()+”/selenium-reports/html/”+ result.getName() + “.jpg’ height=’100' width=’100'/> </a>”);
+
+Reporter.log("<a href='../"+result.getName()+".jpg' <img src='../"+result.getName()+".jpg' hight='100' width='100'/> </a>");
+
+16. Alert dialog box, frame
+
+Alert alert = driver.switchTo().alert();
+alert.accept();
+alert.dismiss();
+
+//driver.switchTo().frame("mailroifrm12");
+WebElement ifr = driver.findElement(By.xpath("//iframe[@id='mailroifrm12']"));
+driver.switchTo().frame(ifr);
+Thread.sleep(3000L);
+driver.findElement(By.id("mathuserans2")).sendKeys("8");
+
+17. Windows handles 
+
+		driver.getWindowHandles();
+		Set<String> availableWindows = driver.getWindowHandles();
+		System.out.println("Handle Size:" +availableWindows.size());
+		long timeoutEnd = System.currentTimeMillis()+30000;
+		while (availableWindows.size() == 1 )
+		{
+			Thread.sleep(100);
+			availableWindows = driver.getWindowHandles();
+			if(System.currentTimeMillis() > timeoutEnd)
+			{
+				System.out.println("Still have 1 handle.");
+				throw new WebDriverException();
+			}
+		}
+		System.out.println("Handle Size:" +availableWindows.size());
+		
+---
+		System.out.println("Handle Size:" +availableWindows.size());
+
+		int Windows = 2;
+		if (availableWindows.size()==Windows) {
+			System.out.println("Handle Size:" +availableWindows.size());
+			// For loop for modal popup
+			for (String windowId : availableWindows) {
+				System.out.println(driver.switchTo().window(windowId).getTitle());
+				System.out.println("Modal popup:"+driver.getTitle());
+				if ("Opening Saiku-export.xls".equals(driver.switchTo().window(windowId).getTitle())){
+					System.out.println("Modal popup:-2"+driver.getTitle());
+					//					driver.findElement(By.id("chk_PASID_94135508")).click();
+					//					driver.findElement(By.id("btnDown")).click();
+					break; // Task completed, just come out
+				}
+			}
+
+		 */
+
+18: autoIT
+		
+		Runtime.getRuntime().exec("Autoit.exe")
+		
+19: robot 
+		try {
+			Robot robot = new Robot();
+			System.out.println("Start robot part");
+
+			robot.keyPress(KeyEvent.VK_S);
+			robot.delay(500);
+			robot.keyRelease(KeyEvent.VK_ENTER);
+			/*			robot.delay(500);
+			robot.keyPress(KeyEvent.VK_ESCAPE);
+			robot.delay(500);
+			robot.keyRelease(KeyEvent.VK_ESCAPE);
+			 */
+		} catch (Exception e) {
+			Reporter.log(e.getStackTrace().toString());
+		}
+20: Get browser version
+
+import org.openqa.selenium.JavascriptExecutor;
+
+within test code. . .
+
+WebDriver driver = new FirefoxDriver();
+String s = (String) ((JavascriptExecutor) driver).executeScript("return navigator.userAgent;");
+System.out.println(s);
+
+For FF you will get something like:
+Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.1.16) Gecko/20101130 Firefox/3.5.162
+
+For IE, something like:
+Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; GTB7.2; .NET CLR 2.0.50727; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; .NET4.0C; .NET4.0E; AskTB5.3)
+
+You can ' trim' the String s to Firefox/version #
+and MSIE version #
+
+21: Launch application on remote machine: robotil
+
+http://www.codoid.com/products/view/2/27
+1) Download Robotil.jar
+2) Start Robotil server on a remote machine. 
+
+java -jar Robotil.jar (Default portNumber is 6666)
+
+java -jar Robotil.jar 5555
+
+3) Reference Robotil jar in java project on a client machine
+4) Create an object for Robotil class by mentioning remote IP and port
+5) Now, it is ready to use
+
+1.
+Robotil robotil=new Robotil("localhost", 5555);2.
+robotil.pressAndReleaseKey(KeyEvent.VK_ENTER);
+
+Robotil robotil=new Robotil("localhost", 6666);
+robotil.invokeApplication("notepad.exe");
+
+22: Get remote machine host name and port:
+https://gist.github.com/krmahadevan/1766772
+
+GridInfoExtracter.javaJava
+
+public class GridInfoExtracter{
+ 
+	private static String[] getHostNameAndPort(String hostName, int port,
+			SessionId session) {
+		String[] hostAndPort = new String[2];
+		String errorMsg = "Failed to acquire remote webdriver node and port info. Root cause: ";
+ 
+		try {
+			HttpHost host = new HttpHost(hostName, port);
+			DefaultHttpClient client = new DefaultHttpClient();
+			URL sessionURL = new URL("http://" + hostName + ":" + port + "/grid/api/testsession?session=" + session);
+			BasicHttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", sessionURL.toExternalForm());
+			HttpResponse response = client.execute(host, r);
+			JSONObject object = extractObject(response);
+			URL myURL = new URL(object.getString("proxyId"));
+			if ((myURL.getHost() != null) && (myURL.getPort() != -1)) {
+				hostAndPort[0] = myURL.getHost();
+				hostAndPort[1] = Integer.toString(myURL.getPort());
+			}
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, errorMsg, e);
+			throw new RuntimeException(errorMsg, e);
+		}
+		return hostAndPort;
+	}
+ 
+	private static JSONObject extractObject(HttpResponse resp) throws IOException, JSONException {
+		BufferedReader rd = new BufferedReader(new InputStreamReader(resp.getEntity().getContent()));
+		StringBuffer s = new StringBuffer();
+		String line;
+		while ((line = rd.readLine()) != null) {
+			s.append(line);
+		}
+		rd.close();
+		JSONObject objToReturn = new JSONObject(s.toString());
+		return objToReturn;
+	}
+}
+---
+A typical call to this would be
+
+GridInfoExtracter.getHostNameAndPort("localhost",4444,myRemoteWebDriver.getSessionId());
+
+23: Detect browser:
+
+		String userAgent = (String) ((JavascriptExecutor) driver).executeScript("return navigator.userAgent;");
+		System.out.println(userAgent);
+
+		if(userAgent.contains("Firefox")){
+		
+	}
+	
+24: Local file detector
+
+        driver = new RemoteWebDriver(
+           new URL("http://<username>:<api-key>@ondemand.saucelabs.com:80/wd/hub"),
+           capabillities);
+        driver.setFileDetector(new LocalFileDetector());
+        driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+			
+        driver.get("http://sso.dev.saucelabs.com/test/guinea-file-upload");
+        WebElement upload = driver.findElement(By.id("myfile"));
+        upload.sendKeys("/Users/sso/the/local/path/to/darkbulb.jpg");
+        driver.findElement(By.id("submit")).click();
+---------------		
+driver.findElementByLinkText("Upload Files").click();
+driver.setLogLevel(Level.ALL);
+System.out.println(driver.getCurrentUrl());
+WebElement element = driver.findElement(By.xpath("//input[@name='file_1']"));
+LocalFileDetector detector = new LocalFileDetector();
+
+//Now, give the file path and see the magic :)              
+String path = "D://test66T.txt";
+File f = detector.getLocalFile(path);
+((RemoteWebElement)element).setFileDetector(detector);
+element.sendKeys(f.getAbsolutePath());
+
+//now click the button to finish
+driver.findElementByXPath("//html/body/div[9]/div[1]/a/span").click(); 
+
+---
+Adam's code:
+
+		//		LocalFileDetector lfd = new LocalFileDetector();
+		//		driver.setFileDetector(lfd);
+
+		//		File file = lfd.getLocalFile(localDownloadPath + "/"+fileName1);
+   
+25: Java System.getProperty();
+	http://www.tutorialspoint.com/java/lang/system_getproperties.htm
+	http://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html
+	
+	System.getProperty("path.separator");
+	
+Key	Meaning
+"file.separator"	Character that separates components of a file path. This is "/" on UNIX and "\" on Windows.
+"java.class.path"	Path used to find directories and JAR archives containing class files. Elements of the class path are separated by a platform-specific character specified in the path.separator property.
+"java.home"	Installation directory for Java Runtime Environment (JRE)
+"java.vendor"	JRE vendor name
+"java.vendor.url"	JRE vendor URL
+"java.version"	JRE version number
+"line.separator"	Sequence used by operating system to separate lines in text files
+"os.arch"	Operating system architecture
+"os.name"	Operating system name
+"os.version"	Operating system version
+"path.separator"	Path separator character used in java.class.path
+"user.dir"	User working directory
+"user.home"	User home directory
+"user.name"	User account name
+
+26: Firefox set profile to save file to disk
+http://stackoverflow.com/questions/12759256/selenium-firefox-profile-for-saving-a-file
+http://stackoverflow.com/questions/1176348/access-to-file-download-dialog-in-firefox
+
+FirefoxProfile firefoxProfile = new FirefoxProfile();
+
+    firefoxProfile.setPreference("browser.download.folderList",2);
+    firefoxProfile.setPreference("browser.download.manager.showWhenStarting",false);
+    firefoxProfile.setPreference("browser.download.dir","c:\\downloads");
+    firefoxProfile.setPreference("browser.helperApps.neverAsk.saveToDisk","text/csv");
+
+    WebDriver driver = new FirefoxDriver(firefoxProfile);//new RemoteWebDriver(new URL("http://localhost:4444/wd/hub"), capability);
+
+    driver.navigate().to("http://www.myfile.com/hey.csv");
+	
+25: Ant basic
+http://qtp-automate.blogspot.co.uk/2011/10/executing-selenium-testng-tests-using.html
+http://www.seleniumtests.com/2011/06/selenium-tutorial-ant-build-for.html
+
+26: AutoIT handle IE 10 download/saveas dialog
+http://www.autoitscript.com/forum/topic/152614-ie10-download-save-as/
+
+;read arguments
+$pathToSave=$CmdLine[1]
+
+
+; get the handle of main window
+Local $windHandle=WinGetHandle("[Class:IEFrame]", "")
+Local $winTitle = "[HANDLE:" & $windHandle & "]"; 
+;get coordinates of default HWND 
+Local $ctlText=ControlGetPos ($winTitle, "", "[Class:DirectUIHWND;INSTANCE:1]")
+
+
+; Select save as option
+WinActivate ($winTitle, "")
+Send("{F6}")
+sleep(500)
+Send("{TAB}")
+sleep(500)
+Send("{DOWN}")
+sleep(500)
+Send("a")
+
+
+; Save as dialog
+; wait for Save As window
+WinWait("Save As")
+; activate Save As window
+WinActivate("Save As")
+; path to save the file is passed as command line arugment
+ControlFocus("Save As","","[CLASS:Edit;INSTANCE:1]")
+Send($pathToSave,1)
+sleep(500)
+;click on save button
+ControlClick("Save As","","[TEXT:&Save]") 
+
+
+26: email - powershell
+To change signiture issue
+http://technet.microsoft.com/en-us/library/ee176949.aspx
+
+27: task scheduler run after another complete
+http://blogs.msdn.com/b/davethompson/archive/2011/10/25/running-a-scheduled-task-after-another.aspx
+
+<QueryList>
+   <Query Id="0" Path="Microsoft-Windows-TaskScheduler/Operational">
+      <Select Path="Microsoft-Windows-TaskScheduler/Operational">*[EventData
+[@Name='TaskSuccessEvent'][Data[@Name='TaskName']='\AutomationTest\SaikuUIAutomationTest]]</Select>
+   </Query>
+</QueryList>
+
+
+27: firefox profile
+
+ @BeforeTest  
+ public void start(){  
+  FirefoxProfile profile = new FirefoxProfile();  
+  profile.setEnableNativeEvents(true);  
+  driver = new FirefoxDriver(profile);  
+ }  
+ ------------------------------ 
+  FirefoxProfile profile = new FirefoxProfile();
+
+// OR
+// FirefoxProfile profile = new FirefoxProfile(new File(...));      
+
+// Init your profile 
+
+// OR
+// If you created the profile by providing a path to it,
+// the path should refer to the one on the host of the WD server
+
+DesiredCapabilities caps = DesiredCapabilities.firefox(); 
+caps.setCapability(FirefoxDriver.PROFILE, profile);
+
+WebDriver driver = new RemoteWebDriver(new URL("http://<....>:4444/wd/hub"), caps);
+
+-------------------------------
+		//Browsers
+		if(browser.equalsIgnoreCase("firefox")){
+			capabilities.setBrowserName(DesiredCapabilities.firefox().getBrowserName());
+//			DesiredCapabilities capabilities = DesiredCapabilities.firefox();
+//			FirefoxProfile profile = new ProfilesIni().getProfile("myprofile");
+			FirefoxProfile profile = new FirefoxProfile();  
+			profile.setEnableNativeEvents(true);
+			capabilities.setCapability(FirefoxDriver.PROFILE, profile);
+			
+This is to try to make drag&drop work. But it didn't.
+
+
+28: Selenium clear text area:
+
+driver.findElement("locator").clear();
+If it does not help, then try this:
+
+WebElement toClear = driver.findElement("locator");
+toClear.sendKeys(Keys.CONTROL + "a");
+toClear.sendKeys(Keys.DELETE);
+
+29: FindElement examples
+---------
+<th class="row_header">
+  <div>Store Name</div>
+</th>
+
+driver.findElement(By.xpath("//th[contains(@class,'row_header')]/div[contains(.,'Store Name')]"));
+
+----------
+
+<div class="fields_list_body columns">
+  <ul class="connectable ui-sortable" style=""></ul>
+</div>
+
+driver.findElement(By.xpath("//div[contains(@class,'fields_list_body columns')]/ul[contains(@class,'connectable ui-sortable')]"));
+-----------
+
+<li class="context-menu-item context-menu-submenu">
+  <span>Keep and Include Level</span>
+  <ul class="context-menu-list " style="width: 163px; z-index: 2; top: 0px; left: 209px;">
+    <li class="context-menu-item">
+    <li class="context-menu-item disabled">
+    <li class="context-menu-item">
+    <li class="context-menu-item">
+      <span>Product Category</span>
+    </li>
+    <li class="context-menu-item">
+    <li class="context-menu-item">
+    <li class="context-menu-item">
+  </ul>
+  
+ driver.findElement(By.xpath("//span[contains(.,'Keep and Include Level')]/following-sibling::ul/descendant::li/span[contains(.,'Product Category')]")).click();
+
+30. To convert a string into an int, use:
+
+String str = "1234";
+int num = Integer.parseInt(str);
+To convert a number into a string, use:
+
+int num = 1234;   
+String str = String.valueOf(num);
+
+31. table list
+		WebElement outputTable = driver.findElement(By.cssSelector("div.workspace_results.ui-droppable div table"));		
+
+		//Get all rows
+		List<WebElement> rows = outputTable.findElements(By.tagName("tr"));
+		System.out.println(rows.size());
+		Assert.assertEquals(2, rows.size());
+
+		//Print data from each head row
+		for (WebElement row : rows) {
+			List<WebElement> cols1 = row.findElements(By.tagName("th"));
+			for (WebElement col : cols1) {
+				System.out.print(col.getText() + "\t");
+			}
+			System.out.println();
+		}
+		
+		//Print data from each data row
+		for (WebElement row : rows) {
+			List<WebElement> cols2 = row.findElements(By.tagName("td"));
+			for (WebElement col : cols2) {
+				System.out.print(col.getText() + "\t");
+			}
+		//	Assert.assertEquals(cols2.get(1).getText(),"10:31:29");
+		System.out.println();
+		}
+		
+32. Select from selection list
+
+//		new Select(driver.findElement(By.cssSelector("select[multiple='true']"))).selectByVisibleText(itemName);
+
+		Select nameList = new Select(driver.findElement(By.cssSelector("select[multiple='true']")));
+/*		String selected = nameList.getFirstSelectedOption().getText();
+		if(selected.equals(valueToSelect)){
+			//already selected;
+			//do stuff
+		}*/
+		List<WebElement> Options = nameList.getOptions();
+		for(WebElement option:Options){
+			if(option.getText().equals(valueToSelect)) {
+				option.click(); //select option here;
+			}
+		}
+		
+----
+		/*
+		// Click the available day after the filter.
+		Select List = new Select(driver.findElement(By.cssSelector("div.available_selections select[multiple='true']")));
+		List<WebElement> Options = List.getOptions();
+		Options.get(0).click();
+
+		 */
+
+33. send key
+
+			driver.findElement(By.id("username")).clear();
+			driver.findElement(By.id("username")).sendKeys("username");
+			driver.findElement(By.id("password")).clear();
+			driver.findElement(By.id("password")).sendKeys("password");
+			driver.findElement(By.linkText(" Login ")).click();
+JAVA
+driver.findElement(By.id("Value")).sendKeys(Keys.RETURN);
+
+34. Select one item from list
+		//Get the option list
+		Select nameList = new Select(driver.findElement(By.cssSelector("select[multiple='true']")));
+		List<WebElement> Options = nameList.getOptions();
+
+		// Get the second latest item from the list.
+		Options.get(Options.size() - 2).click();
+		driver.findElement(By.id("add_members")).click();
+		
+35. wait.until - expect condition
+http://selenium.googlecode.com/git/docs/api/py/webdriver_support/selenium.webdriver.support.expected_conditions.html
+http://selenium.googlecode.com/git/docs/api/java/org/openqa/selenium/support/ui/ExpectedConditions.html
+
+36. Move long directory created by testng-tests-using
+On DOS cmd prompt, run the command below, which will delete "test-output" directory including the long path in this folder.
+robocopy "d:\jinhuatmp" "d:\work\eclipse-workspace\Insight-Saiku-Test\test-output" /PURGE
+
+
+37. 
+1. webDriver.Close() - Close the browser window that the driver has focus of
+2. webDriver.Quit() - Calls dispose
+3. webDriver.Dispose() Closes all browser windows and safely ends the session

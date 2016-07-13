@@ -1,0 +1,637 @@
+1) Bash function array:
+
+The function ends with: echo ${ARRAY[*]}
+
+And the function call is TITLE_LINE=($(function_call))
+
+2. awk 
+awk print the finding line and the line above.
+awk -v count=1 '/foo/{{i++};if(i==count){print a;print;exit}};{a=$0}' testawk
+
+awk print the finding line then exit
+less sig-event-long-term-2013-10-* | awk -F',' -v chlNum="362" -v dID="4327" -v dStartT="1381378640" '$2 ~ dID && $4 !~/82/ && $5 > dStartT && $15 ~ chlNum {print ; exit;}'
+1429483736,4327,4327,161,1381407574,674,15,74838,0,327680,28934,1,362,0,362,4294967295,1,4294967295
+
+awk print the line before it finds the match line.
+less sig-event-long-term-2013-10-* | awk -F',' -v chlNum="362" -v dID="4327" -v dStartT="1381378640" '$2 ~ dID && $4 !~/82/ && $5 > dStartT && $15 ~ chlNum {print x; exit}; { x=$0}'
+1429483735,5294,5294,82,1381407574,280,6,175567,0,393216,504111,169148196,169082880,16,19,4294967295,1,4294967295
+
+
+awk print the finding line and the line above.
+less sig-event-long-term-2013-10-* | awk -F',' -v chlNum="362" -v dID="4327" -v dStartT="1381378640" -v count=1  '$2 ~ dID && $4 !~/82/ && $5 > dStartT && $15 ~ chlNum {{i++};if(i==count){print a;print;exit}};{a=$0}'
+1429483735,5294,5294,82,1381407574,280,6,175567,0,393216,504111,169148196,169082880,16,19,4294967295,1,4294967295
+1429483736,4327,4327,161,1381407574,674,15,74838,0,327680,28934,1,362,0,362,4294967295,1,4294967295
+
+awk print the last line of the findings
+ubuntu@ip-10-217-134-80:/mnt/pipeline/p1_gen/work/s0_root/complete$ less sig-event-long-term-2013-10-* | awk -F',' -v chlNum="362" -v dID="4327" -v dStartT="1381378640" '$2 ~ dID && $4 ~/82/ && $5 > dStartT && $5 <1381407574 && $15 ~ chlNum' | awk  'END{ print}'
+1429480239,4327,4327,82,1381407222,822,4,74830,0,393216,3019034,170523870,170459136,16,362,4294967295,1,4294967295
+
+ubuntu@ip-10-217-134-80:/mnt/pipeline/p1_gen/work/s0_root/complete$ less sig-event-long-term-2013-10-* | awk -F',' -v chlNum="362" -v dID="4327" -v dStartT="1381378640" '$2 ~ dID && $4 ~/82/ && $5 > dStartT && $5 <1381407574 && $15 ~ chlNum' | tail -1
+1429480239,4327,4327,82,1381407222,822,4,74830,0,393216,3019034,170523870,170459136,16,362,4294967295,1,4294967295
+
+zcat sig-event-long-term-2013-10-* | awk -F',' -v chlNum="362" -v dID="4327" -v dStartT="1381378640" '$2 ~ dID && $4 ~/82/ && $5 > dStartT && $5 <1381407574 && $15 ~ chlNum {a=$0} END {print a}'
+1429480239,4327,4327,82,1381407222,822,4,74830,0,393216,3019034,170523870,170459136,16,362,4294967295,1,4294967295
+
+awk print the field 5  of the last line of the findings
+zcat sig-event-long-term-2013-10-* | awk -F',' -v chlNum="362" -v dID="4327" -v dStartT="1381378640" '$2 ~ dID && $4 ~/82/ && $5 > dStartT && $5 <1381407574 && $15 ~ chlNum {f = $5} END {print f}'
+1381407222
+
+3) Comparison Operators
+http://tldp.org/LDP/abs/html/comparison-ops.html
+
+integer comparison
+
+-eq
+is equal to
+if [ "$a" -eq "$b" ]
+
+-ne
+is not equal to
+if [ "$a" -ne "$b" ]
+
+-gt
+is greater than
+if [ "$a" -gt "$b" ]
+
+-ge
+is greater than or equal to
+if [ "$a" -ge "$b" ]
+
+-lt
+is less than
+if [ "$a" -lt "$b" ]
+
+-le
+is less than or equal to
+if [ "$a" -le "$b" ]
+
+<
+is less than (within double parentheses)
+(("$a" < "$b"))
+
+<=
+is less than or equal to (within double parentheses)
+(("$a" <= "$b"))
+
+>
+is greater than (within double parentheses)
+(("$a" > "$b"))
+
+>=
+is greater than or equal to (within double parentheses)
+(("$a" >= "$b"))
+
+string comparison
+=
+
+is equal to
+if [ "$a" = "$b" ]
+
+Caution	
+Note the whitespace framing the =.
+
+if [ "$a"="$b" ] is not equivalent to the above.
+
+==
+is equal to
+
+if [ "$a" == "$b" ]
+This is a synonym for =.
+
+Note	
+The == comparison operator behaves differently within a double-brackets test than within single brackets.
+[[ $a == z* ]]   # True if $a starts with an "z" (pattern matching).
+[[ $a == "z*" ]] # True if $a is equal to z* (literal matching).
+
+[ $a == z* ]     # File globbing and word splitting take place.
+[ "$a" == "z*" ] # True if $a is equal to z* (literal matching).
+
+# Thanks, Stéphane Chazelas
+!=
+is not equal to
+if [ "$a" != "$b" ]
+
+This operator uses pattern matching within a [[ ... ]] construct.
+
+<
+is less than, in ASCII alphabetical order
+
+if [[ "$a" < "$b" ]]
+if [ "$a" \< "$b" ]
+
+Note that the "<" needs to be escaped within a [ ] construct.
+
+>
+is greater than, in ASCII alphabetical order
+
+if [[ "$a" > "$b" ]]
+if [ "$a" \> "$b" ]
+
+Note that the ">" needs to be escaped within a [ ] construct.
+
+See Example 27-11 for an application of this comparison operator.
+
+-z
+string is null, that is, has zero length
+
+ String=''   # Zero-length ("null") string variable.
+
+if [ -z "$String" ]
+then
+  echo "\$String is null."
+else
+  echo "\$String is NOT null."
+fi     # $String is null.
+
+-n
+string is not null.
+
+Caution	
+The -n test requires that the string be quoted within the test brackets. Using an unquoted string with ! -z, or even just the unquoted string alone within test brackets (see Example 7-6) normally works, however, this is an unsafe practice. Always quote a tested string. [1]
+
+08/07/2016 if you want grep either text string "Success" or "Complete" in a file. 
+if grep -q -e "Success" -e "Complete" "$filename"; then
+
+08/07/2016 =====
+	if 	echo "$line" | grep -q "^python" || echo "$line" | grep -q "^mysql"
+	then 
+		"$line" > $outputFile 2>$errlogFile
+	else 
+		"./$line" > $outputFile 2>$errlogFile
+	fi	
+================== if and grep condition =====
+
+    # If the line is not started with "#" and it is not empty, do below.
+    if  echo "$line" | grep -q -v "^#" && [[ "$line" != "" ]]
+    then 
+	
+==================	
+
+4) Pass array from function 
+------------
+#!/bin/bash
+declare -a array=(1 2 3 4)
+
+function pass_array () {
+echo ${array[@]}
+}
+------------
+#!/bin/bash
+declare -a array1[10]
+source ./functionfilename
+
+array1=$(pass_array)
+
+echo ${array1[@]}
+
+-------------
+
+5) Get a float division
+http://stackoverflow.com/questions/12722095/how-can-i-get-a-float-division-in-bash
+bc(Basic calculator)
+
+bc <<< 'scale=2; 100/3'  # This only returns two digital from the dot.
+33.33 	
+
+or
+bc -l <<< '100/3'		# This returns long float points.
+33.33333333333333333333
+
+
+# When use "scale" to control how many digital after the decimal point, if $result of (deviceCounter/$totalSubscribers) == 0.0063 first, the scale will cut the result to 0.00. then if result*100 will be still 0.00.
+
+sharePercentage=$((echo "scale=2; (100*$deviceCounter/$totalSubscribers)" | bc ))
+----
+ubuntu@ip-10-217-134-80:/tmp$ echo "scale=2; (13/2042*100)" | bc
+0
+
+ubuntu@ip-10-217-134-80:/tmp$ echo "scale=2; (100*13/2042)" | bc
+.63
+----
+
+3) case
+
+case $stb in
+    stb1 ) deviceID=30001 ;;
+	stb2 ) deviceID=30002 ;;
+	stb3 ) deviceID=30003 ;;
+	stb4 ) deviceID=30004 ;;
+	stb5 ) deviceID=30005 ;;
+	stb6 ) deviceID=30006 ;;
+	stb7 ) deviceID=30007 ;;
+	* ) echo "You use a wrong file." ; exit 1
+esac
+
+4) Extract file name without extension.
+ ## get file name 
+
+stb=$(basename "$1" .csv)
+
+For example, file name is "stb1.csv"
+The output will be: stb1
+
+5) ifconfig ip address only 
+/sbin/ifconfig eth0 | grep 'inet addr' | cut -d: -f2 | awk '{print $1}'
+
+or on ubuntu14.04
+hostname -i
+
+6) bash execute mysql command
+# Use double quote.
+mysql --user="$user" --password="$password" --database="$database" --execute="DROP DATABASE $user; CREATE DATABASE $database;"
+
+#This one worked, double quotes when $user and $password are outside single quotes. Single quotes when inside a single quote statement.
+mysql --user="$user" --password="$password" --database="$user" --execute='DROP DATABASE '$user'; CREATE DATABASE '$user';'
+
+# mysql send output into a csv file with delimit ","
+mysql -sN -u root -pminime -D mirimon002 --execute="select * from sig_event_long_term limit 10 into outfile '/tmp/output.csv'  FIELDS TERMINATED BY ','"
+root@ip-10-83-13-177:~/tests/mirimon-smoke-test# cat /tmp/output.csv
+1,13,13,86,1424875528,758,0,1,0,393216,167772160,0,0,0,0,0,4,0
+2,13,13,912,1424875528,758,0,2,0,393216,20024,70,0,0,0,0,4,0
+3,13,13,83,1424875528,758,0,3,0,327680,0,0,0,0,0,0,4,0
+4,13,13,377,1424875528,758,0,4,0,327680,1,4,8,17041408,0,0,4,0
+5,17,17,86,1424875528,758,0,1,0,393216,167837696,0,0,0,0,0,4,0
+6,17,17,912,1424875528,758,0,2,0,393216,20228,70,0,0,0,0,4,0
+7,17,17,83,1424875528,758,0,3,0,327680,0,0,0,0,0,0,4,0
+8,17,17,377,1424875528,758,0,4,0,327680,1,4,4,17040384,0,0,4,0
+9,20,20,86,1424875528,758,0,1,0,393216,167903232,0,0,0,0,0,4,0
+10,20,20,912,1424875528,758,0,2,0,393216,20138,70,0,0,0,0,4,0
+
+# mysql use array
+mysql_query="select lastlookup from geo_ip_list where ipv4='${IPs[$i]}'"
+output1[$i]=$(mysql -sN --user="$user" --password="$password" --database="$database" --execute="$mysql_query")
+
+# mysql line terminated by ,
+-----------------------
+SELECT order_id,product_name,qty
+FROM orders
+INTO OUTFILE '/tmp/orders.csv'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n';
+
+
+select column_name FROM information_schema.columns WHERE table_name = 'geo_lookup' into outfile '/tmp/column.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n';
+
+cat /tmp/column.csv
+------------
+"id"
+"ip_address"
+"lookup_time"
+"valid"
+"geo_city"
+"geo_region"
+"geo_country"
+"isp"
+"asn"
+"geo_lat"
+"geo_long"
+
+
+7)dirname and basename are the tools you're looking for for extracting path components:
+
+$ export VAR=/home/me/mydir/file.c
+
+$ export DIR=$(dirname ${VAR})
+
+$ echo ${DIR}
+/home/me/mydir
+
+$ basename ${VAR}
+file.c
+
+7-1) ## If a file name is /tmp/test.txt
+cat /tmp/test.txt
+#!/bin/bash
+
+filename=$(basename $0 .txt)
+echo $filename
+-----------------
+# the output is "test"
+
+7-2) cat /tmp/test.txt
+#!/bin/bash
+
+filename=$(dirname $0)
+echo $filename
+---------------------
+# the output is "/tmp"
+
+bash /tmp/test.txt
+/tmp
+
+8) echo - display colour
+red='\033[0;31m'       # echo: colour red
+NC='\033[0m'           # echo: no Color
+
+echo -e "${red}Some errors during the mirimon $package installation ${NC}"
+
+9) Replace characters ( / replaced by - )
+rest="kpis/ip/network-qos"
+tmpName=$(echo $rest | tr "\/" -)
+
+# The result is:
+kpis-ip-network-qos
+
+10) Delect character from a variable. -->   tr -d "~" 
+version="3.25.1~dev"
+versionAlien=$(echo $version | tr -d "~" )
+
+the result is: "3.25.1dev"
+
+11) Check directory empty
+If the directory not empty, echo "not empty".
+[[ $(ls -A /var/lib/mirimon/provisioning/ready/) ]] && echo "the directory is not empty"
+
+# Check directory exist. If the directory does not exist, create the directory.
+[[ ! -e /mnt/mirimon/etl/incoming ]] && mkdir -p /mnt/mirimon/etl/incoming 
+
+12) grep two words.
+cat /usr/share/mirimon-dancer/dancer-rest-service.pl | grep 'prefix\|get'
+cat /usr/share/mirimon-dancer/dancer-rest-service.pl | grep '^prefix\|^get'   <-- "^" is for searching a word appearing at the beginning of the line.
+
+# grep precise word
+grep -w "word"
+
+07/01/2016
+grep a text string from a directory, and display the file name.
+The example below, search for "servername"
+
+root@homestead:/var/lib/mysql-files/test# find . -type f | xargs -I {} grep -H servername "{}"
+./hitlogs.csv:servername,varchar(255),NO,,NULL,
+./networks.csv:servername,varchar(32),NO,MUL,NULL,
+
+13) Read log file and get the line number.
+count=$(cat $logFile_Provisioning | wc -l )
+
+# Check the log after the line from line number.
+tail -n +$count $logFile_Provisioning | grep -in 'error\|fail' && echo -e "${red}Some errors in $logFile_Provisioning${NC}"
+
+13) date format
+YYMMDD_hhmmss                 | date +%Y%m%d_%H%M%S  
+
+outputDir="/tmp/restful-$(date +%Y%m%d_%H%M)"
+
+Format/result         |       Command              |          Output
+------------------------------+----------------------------+------------------------------
+YY-MM-DD_hh:mm:ss             | date +%F_%T                | 2013-05-17_10:16:09
+YYMMDD_hhmmss                 | date +%Y%m%d_%H%M%S        | 20130517_101609
+YYMMDD_hhmmss (UTC version)   | date --utc +%Y%m%d_%H%M%SZ | 20130517_011609Z
+YYMMDD_hhmmss (with local TZ) | date +%Y%m%d_%H%M%S%Z      | 20130517_101609JST
+YYMMSShhmmss                  | date +%Y%m%d%H%M%S         | 20130517101609
+YYMMSShhmmssnnnnnnnnn         | date +%Y%m%d%H%M%S%N       | 20130517101609418928482
+Seconds since UNIX epoch:     | date +%s                   | 1368753369
+Nanoseconds only:             | date +%N                   | 427187053
+Nanoseconds since UNIX epoch: | date +%s%N                 | 1368753369431083605
+ISO8601 UTC timestamp         | date --utc +%FT%TZ         | 2013-05-17T01:16:09Z
+ISO8601 Local TZ timestamp    | date +%FT%T%Z              | 2013-05-17T10:16:09JST
+
+14) Array element contains space, you need to use --  IFS=""
+also if grep -- do not have output. use "-z"
+
+#!/bin/bash
+
+# Check processes running/not running after installation
+declare processes=( \
+"siamang Running" \
+"mmsubtraps Running" \
+"mmregiontraps Running" \
+"mmregionagent Running" \
+"push-output Running" \
+"export-jobs Running" \
+"mirimon-dancer Running" \
+"kloss Running" \
+"iptv-sim Not monitored" \
+"hoolock Running" \
+"hls-sim Not monitored" \
+"dvb-sim Not monitored" \
+"concolor Running" \
+"agile-default Running" )
+
+IFS=""
+
+for process in "${processes[@]}"
+do
+
+    if [[ -z $(monit summary | grep $(echo "$process" | cut -d" " -f1) | grep $(echo "$process" | cut -d" " -f2) ) ]]
+    then
+        echo "Expect: $process"
+        echo "But $(monit summary | grep $(echo "$process" | cut -d" " -f1))"
+		echo "Test failed!"
+		exit 1
+    fi
+done
+
+echo "Test passed"
+
+
+07/06/2016 Bash on Redhat
+
+if echo "$1" | grep -q "$2"
+then
+    echo "$2 is in $1"
+else 
+    echo "$2 is not in $1"
+fi
+-------------------
+
+## Total array length --- ${#sig_event[@]}
+## total array element
+declare -a sig_event=(251 127 128 254 252 162)
+for (( j=0; j<${#sig_event[@]}; j++ ))
+do
+curl -s -X POST "http://localhost/mirimon/cgi-bin/sigevent.pl" --data a=se --data m=$i --data di=${sig_event[$j]} --data df=50000 --data dt=$currenttime --data dms=637 --data d0=00000008 \
+	--data d1=00000001 --data d2=00000002 --data d3=08010200 --data r0=$r0 --data r1=$r1 --data r2=00000002 --data r3=00000019 >/dev/null
+done
+-------------
+
+15) If condition, compare
+
+https://www.gnu.org/software/bash/manual/html_node/Bash-Conditional-Expressions.html#Bash-Conditional-Expressions
+
+16) add machine to known_host
+## The following steps will automatically copy files from another machine without manual intervention.
+
+javascriptFileServer="134.213.24.23"
+
+# Add the fileServer into "known_hosts" file
+ssh-keygen -R $javascriptFileServer
+ssh-keyscan -H $javascriptFileServer >> /root/.ssh/known_hosts
+
+# Copy javascript files
+cd /var/www/
+sshpass -p "GeniusD1g1t4l" scp root@$javascriptFileServer:js.tgz .
+
+17) Delete space in a string. (trim)
+tr -d ' '
+
+e.g.
+"  1017 "  --> "1017"
+
+15) When a command executes, it asked to answer "y/n" or "yes/no", you can use below.
+
+echo -e "y\n\r>&1 " | /usr/share/mirimon/db/scripts/create.pl --user=root --password=minime
+
+# It has been tested, working.
+
+17) for loop
+
+		for (( i=0; i <= "$(($dn-1))" ; i++ ))
+			do 
+				if [[ ${devices[$i]} == $deviceTmp ]] 
+				then 
+					break
+				else
+					if [[ ${devices[$i]} == "" ]] 
+					then
+					devices[$i]=$deviceTmp
+					break
+					fi
+				fi
+			done
+			
+18) epoch time to human readable time, Vice versa
+
+# Get the epoch time
+example:
+date --date="2015-03-02 11:53:07" +%s
+1425297187
+
+date +%s
+
+# the epoch time - 7 days
+oldEpochDate=$(($lookupEpochDate-604800 | bc ))
+
+example:
+echo "1425297187" - 604800 | bc
+1424692387
+
+# Convert to human readable time
+oldDate=$(date -d @$oldEpochDate "+%y-%m-%d %H:%M:%S")
+
+example
+date -d @$(echo "1425297187" - 604800 | bc) "+%y-%m-%d %H:%M:%S"
+15-02-23 11:53:07
+
+Date - change time
+date -s "Fri May 29 08:38:39 UTC 2015"
+
+19) Bash array
+when you declare a array, you need to declare at the beginning of the file. (or maybe you just need to declare all arrays in one go.
+
+declare -a output1[3]
+declare -a output1_location[3]
+
+declare -a output2[3]
+declare -a output2_location[3]
+
+declare -a output3[3]
+declare -a output3_location[3]
+
+declare -a output4[3]
+declare -a output4_location[3]
+
+declare -a output5[3]
+declare -a output5_location[3]
+
+20) while read line
+----
+
+while read line ;
+do 
+	deviceTmp=$(echo "$line" | cut -d ',' -f2)
+
+	if [[ ${devices[$(($dn-1))]} == "" ]]
+	then
+	
+		for (( i=0; i <= "$(($dn-1))" ; i++ ))
+			do 
+				if [[ ${devices[$i]} == $deviceTmp ]] 
+				then 
+					break
+				else
+					if [[ ${devices[$i]} == "" ]] 
+					then
+					devices[$i]=$deviceTmp
+					break
+					fi
+				fi
+			done
+			
+	else
+		# Pass an empty string to array to indicate too many devices have been detected
+		echo ""
+		break
+	fi
+done < $fileName
+
+---
+
+21) If grep false
+The bash code below:
+-----
+if ! grep -q sysa /etc/passwd
+then
+    ....
+fi
+
+-----
+
+22) find
+# The below command will find file in the folder, depth 2. (will not find directory)
+find . -mindepth 1 -maxdepth 2 -type f
+
+23) Get a file time stamp, change time stamp
+
+time_stamp1=$(date -r /home/ubuntu/lime-data/0409-0419/$line "+%y%m%d%H$M%S")
+
+touch -t $time_stamp1 /tmp/0409-0419/$line
+
+24) array length or array size
+
+declare -a dir_list=$(ls)
+dir_num=${#dir_list[@]}  <-- get array length
+
+25) schema file to verify xml file
+xmllint --schema vod_import.xsd yourfile.xml
+
+Sometimes, you will see all tags in one line in a file, you can use "pretty" and specify a output file.
+xmllint --schema vod_import.xsd --pretty 1 --output outputfilename yourfile.xml
+(xmllint --schema vod_import.xsd --pretty 1 --output output/$file $file)
+
+27/06/2016 vi display windows line ending
+Display CRLF as ^M:
+
+:e ++ff=unix
+
+To fix:
+:%s/^V^M//g
+
+08/07/2016 variable length
+
+root@hem-live-ods-02 jinhua-script]# myvar="1"
+You have new mail in /var/spool/mail/root
+[root@hem-live-ods-02 jinhua-script]# echo ${#myvar}
+1
+[root@hem-live-ods-02 jinhua-script]# myvar="10"
+[root@hem-live-ods-02 jinhua-script]# echo ${#myvar}
+2
+
+
+25) Execute command from variable.
+line="mysql -u ods_user -pastro0 ods < sql/stg_availability.sql"
+eval "$line" > $outputFile 2>$errlogFile
+
+25) Count number of characters
+
+[[ ${#lineNum} -eq 1 ]] && Num="0$lineNum" || Num=$lineNum
+
+For example:
+[root@hem-live-ods-02 log_20160711_22]# lineNum=1
+[root@hem-live-ods-02 log_20160711_22]# echo ${#lineNum}
+1
+
+[root@hem-live-ods-02 log_20160711_22]# lineNum=12
+[root@hem-live-ods-02 log_20160711_22]# echo ${#lineNum}
+2
+

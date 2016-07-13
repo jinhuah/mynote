@@ -1,0 +1,52 @@
+$EmailFrom = “yourgmailadress@gmail.com”
+$EmailTo = “destination@somedomain.com”
+$Subject = “The subject of your email”
+$Body = “What do you want your email to say”
+$SMTPServer = “smtp.gmail.com”
+$SMTPClient = New-Object Net.Mail.SmtpClient($SmtpServer, 587)
+$SMTPClient.EnableSsl = $true
+$SMTPClient.Credentials = New-Object System.Net.NetworkCredential(“usr”, “pass”);
+$SMTPClient.Send($EmailFrom, $EmailTo, $Subject, $Body)
+
+-------------
+("powershell.exe -noexit c:\scripts\test.ps1")
+
+----------------
+http://social.technet.microsoft.com/Forums/windowsserver/en-US/5f7a9d63-6a37-4d98-b710-d76fde920a37/how-to-get-powershell-script-to-send-email-with-attached-file
+
+$EmailFrom = "<user@domain.tld>"
+ $EmailTo = "<user@domain.tld>"
+ $EmailSubject = "<email subject"  
+   
+ $SMTPServer = "smtphost.domain.tld"
+ $SMTPAuthUsername = "username"
+ $SMTPAuthPassword = "password"
+
+$emailattachment = "<full path to attachment file>"
+
+function send_email {
+ $mailmessage = New-Object system.net.mail.mailmessage 
+ $mailmessage.from = ($emailfrom) 
+ $mailmessage.To.add($emailto)
+ $mailmessage.Subject = $emailsubject
+ $mailmessage.Body = $emailbody
+
+$attachment = New-Object System.Net.Mail.Attachment($emailattachment, 'text/plain')
+   $mailmessage.Attachments.Add($attachment)
+
+
+ #$mailmessage.IsBodyHTML = $true
+ $SMTPClient = New-Object Net.Mail.SmtpClient($SmtpServer, 25)  
+ $SMTPClient.Credentials = New-Object System.Net.NetworkCredential("$SMTPAuthUsername", "$SMTPAuthPassword") 
+ $SMTPClient.Send($mailmessage)
+ }
+
+ --------------
+ pip.regan@geniusdigital.tv
+
+'Adam Poolman' <adam.poolman@geniusdigital.tv>
+Ravi Mekala <ravi.mekala@geniusdigital.tv>
+tareq altehami <tareq.altehami@geniusdigital.tv>
+tom weiss <tom.weiss@geniusdigital.tv>
+ 
+ 

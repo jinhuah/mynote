@@ -1,0 +1,192 @@
+#!/bin/bash
+
+#####################
+## change the timestampe to original file
+while read line 
+do
+if [[ -f /home/ubuntu/lime-data/0409-0419/$line ]]
+then
+time_stamp1=$(date -r /home/ubuntu/lime-data/0409-0419/$line "+%y%m%d%H$M%S")
+fi
+
+if [[ -f /tmp/0409-0419/$line ]]
+then
+    touch -t $time_stamp1 /tmp/0409-0419/$line
+fi
+
+done < /tmp/list.txt
+
+########################
+# Create directories based on date-hour and copy files to the directories
+#/bin/bash
+
+sourcedir="/home/ubuntu/lime-date_Updated/lime-date/0409-0419"
+
+mkdir /tmp/lime1
+mkdir /tmp/lime2
+mkdir /tmp/lime-hours2
+
+cp $sourcedir/*_20.*  $sourcedir/*_50.* $sourcedir/*_27.*  $sourcedir/*_57.* /tmp/lime1
+cp $sourcedir/*_05.*  $sourcedir/*_37.* $sourcedir/*_01.*  $sourcedir/*_38.* /tmp/lime2
+
+cd /tmp/lime-hours
+for (( i=10; i<=19; i++ ))
+do
+    for (( j=0; j<=23; j++))
+    do
+            if [[ $i -lt 10 ]]
+            then
+                if [[ $j -lt 10 ]]
+                then
+                    mkdir 2015-04-0$i-0$j-lime1
+                    cp /tmp/lime1/*2015-04-0$i-0$j* 2015-04-0$i-0$j-lime1/
+                else
+                    mkdir 2015-04-0$i-$j-lime1
+                    cp /tmp/lime1/*2015-04-0$i-$j* 2015-04-0$i-$j-lime1/
+                fi
+            else
+                if [[ $j -lt 10 ]]
+                then
+                    mkdir 2015-04-$i-0$j-lime1
+                    cp /tmp/lime1/*2015-04-$i-0$j* 2015-04-$i-0$j-lime1/
+                else
+                    mkdir 2015-04-$i-$j-lime1
+                    cp /tmp/lime1/*2015-04-$i-$j* 2015-04-$i-$j-lime1/
+                fi
+            fi        
+    done
+done
+
+for (( i=10; i<=19; i++ ))
+do
+    for (( j=0; j<=23; j++))
+    do
+            if [[ $i -lt 10 ]]
+            then
+                if [[ $j -lt 10 ]]
+                then
+                    mkdir 2015-04-0$i-0$j-lime2
+                    cp /tmp/lime2/*2015-04-0$i-0$j* 2015-04-0$i-0$j-lime2/
+                else
+                    mkdir 2015-04-0$i-$j-lime2
+                    cp /tmp/lime2/*2015-04-0$i-$j* 2015-04-0$i-$j-lime2/
+                fi
+            else
+                if [[ $j -lt 10 ]]
+                then
+                    mkdir 2015-04-$i-0$j-lime2
+                    cp /tmp/lime2/*2015-04-$i-0$j* 2015-04-$i-0$j-lime2/
+                else
+                    mkdir 2015-04-$i-$j-lime2
+                    cp /tmp/lime2/*2015-04-$i-$j* 2015-04-$i-$j-lime2/
+                fi
+            fi        
+    done
+done
+
+############################
+# move files into each hour's directory
+time_stamp2=$(date -r /home/ubuntu/lime-data/0409-0419/$line "+%y%m%d%H")
+
+mkdir -p /tmp/date-hour
+cd /tmp/date-hour
+dir="/tmp/0409-0419"
+for f in $(ls $dir)
+do 
+time_stamp2=$(date -r $dir/$f "+%y%m%d%H")
+
+echo "/tmp/date-hour/$time_stamp2"
+if [[ -d /tmp/date-hour/$time_stamp2 ]]
+then
+    mv $dir/$f /tmp/date-hour/$time_stamp2
+else
+    mkdir /tmp/date-hour/$time_stamp2
+    mv $dir/$f /tmp/date-hour/$time_stamp2
+fi
+done
+
+
+###############################
+# Use file_collection to move files to ready folder.
+
+#!/bin/bash
+
+cd /tmp/lime-hours
+[[ ! -f /tmp/perf.txt ]] && touch /tmp/perf.txt
+
+dir_list=$(ls)
+dir_num=$(ls | wc -l )
+i=1
+
+while true
+do
+
+    if pipeline summary-active | grep stop
+    then
+        pipeline summary-acitve
+        break
+    fi
+    
+    if pipeline summary-active | grep idle > /dev/null 
+    then
+        echo "" >> /tmp/perf.txt
+        echo "$(echo $dir_list | cut -d " " -f$i) start:  " >> /tmp/perf.txt
+        date "+%y%m%d%H%M_%S" >> /tmp/perf.txt
+        
+        ## If the directory is not empty, move files to pipeline ready/ folder.
+        if [[ $(ls -A /tmp/lime-hours/$(echo $dir_list | cut -d " " -f$i)) ]]
+        then
+        #  /home/insight/app/insight-entellus/bin/file_collection --load --verbose --stage_dir=/mnt/staging --queue_dir=/mnt/pipeline/p1_gen/work/s00_root/ready/ /tmp/lime-hours/$(echo $dir_list | cut -d " " -f$i)/
+		# [[ $? -ne 0 ]] && break
+		echo $(echo $dir_list | cut -d " " -f$i)
+        cp /tmp/lime-hours/$(echo $dir_list | cut -d " " -f$i)/* /tmp/jinhua  
+		j=0
+		while ! pipeline summary-active | grep running 
+		do
+		    sleep 1
+		    j=$(($j+1))
+			[[ $j -eq 30 ]] && exit 1
+        done
+		
+        
+			
+        fi
+        i=$(($i+1))
+    fi
+    [[ $i -gt $dir_num ]] && break
+done
+
+
+
+
+=##################################
+#!/bin/bash
+
+cd /tmp/date-hour
+[[ -f /tmp/perf.txt ]] && rm /tmp/perf.txt
+touch /tmp/perf.txt
+for d in $(ls)
+do
+    if pipeline summary-active | grep stop
+    then
+        pipeline summary-acitve
+        break
+    fi
+
+        if pipeline summary-active | grep idle > /dev/null
+        then
+                echo "$d start:  " >> /tmp/perf.txt
+                date "+%y%m%d%H%M_%S" >> /tmp/perf.txt
+
+                ## If the directory is not empty, move files to pipeline ready/ folder.
+                if [[ $(ls -A /tmp/date-hour/$d) ]]
+                then
+        #    /home/insight/app/insight-entellus/bin/file_collection --load --verbose --stage_dir=/mnt/staging \
+        #  --queue_dir=/mnt/pipeline/p1_gen/work/s00_root/ready/ $d
+                mv /tmp/date-hour/$d/* /mnt/pipeline/p1_gen/work/s00_root/ready/
+                fi
+        fi
+
+done
+
+

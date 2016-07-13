@@ -1,0 +1,26 @@
+echo "<digits>701</digits>" |  sed  -n -r 's/(<digits>)([0-9]{1,3}).*/\2/p'
+701
+
+http://stackoverflow.com/questions/7129279/sed-how-to-remove-everything-but-a-defined-pattern
+$ cat input
+abc
+123%
+123
+abc%
+this is 456% and nothing more
+456
+Use sed -n -E 's/(^|.*[^0-9])([0-9]{1,3})%.*/\2/p' input
+
+$  sed  -n -E 's/(^|.*[^0-9])([0-9]{1,3})%.*/\2/p' input
+123
+456
+The -n flag makes sed to suppress automatic output of the lines. Then, we use the -E flag which will allow us to use extended regular expressions. (In GNU sed, the flag is not -E but instead is -r).
+
+Now comes the s/// command. The group (^|.*[^0-9]) matchs either a beginning of line (^) or a series of zero or more chars (.*) ending in a non-digit char ([^0-9]). [0-9]\{1,3\} just matches one to three digits and is bound to a group (by the ( and ) group delimiters) if the group is preceded by (^|.*[^0-9]) and followed by %. Then .* matches everything before and after this pattern. After this, we replace everything by the second group (([0-9]{1,3})) using the backreference \2. Since we passed -n to sed, nothing would be printed but we passed the p flag to the s/// command. The result is that if the replacement is executed then the resulted line is printed. Note the p is a flag of s///, not the p command, because it comes just after the last /.
+
+2) Replace server IP address.
+sed -i "s/mm.geniurdigital.tv/192.168.128.134/g" SDK/mmweb.js
+
+sed -i "s/GET/GET DELETE PUT POST CONNECT PUSH/g" /usr/share/mirimon-cts/install/cts_apache.conf
+# Before:   <LimitExcept GET OPTIONS>
+# After:    <LimitExcept GET DELETE PUT POST CONNECT PUSH OPTIONS>

@@ -1,0 +1,29 @@
+Find the tags above in notepad++
+1)<external_channel_ref>[^<>]+<\/external_channel_ref>
+
+2)<external_channel_ref>.*?<\/external_channel_ref>
+
+Notepad++ regex Replace, using match variables
+Don't miss () -- important!!!
+
+<external_channel_ref>(.*?)<\/external_channel_ref>
+<schedule_channel_ref>\1<\/schedulel_channel_ref>
+
+This will work (no \):
+<external_channel_ref>(.*?)</external_channel_ref>
+<schedule_channel_ref>\1</schedulel_channel_ref>
+
+Example:
+<external_channel_ref>21</external_channel_ref>
+Change to:
+<schedule_channel_ref>21</schedulel_channel_ref>
+
+or:
+            <consumption_channel_ref>21</consumption_channel_ref> 
+            <ad_schedule_channel_ref>21ad</ad_schedule_channel_ref> 
+            <schedule_channel_ref>21sch</schedule_channel_ref> 
+            <packages_channel_ref>21pkg</packages_channel_ref>
+
+
+Notepad++ replace:			
+<consumption_channel_ref>\1<\/consumption_channel_ref> \n        <ad_schedule_channel_ref>\1ad<\/ad_schedule_channel_ref> \n        <schedule_channel_ref>\1sch<\/schedule_channel_ref> \n        <packages_channel_ref>\1pkg<\/packages_channel_ref>
