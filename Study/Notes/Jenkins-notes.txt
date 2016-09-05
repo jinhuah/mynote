@@ -1,0 +1,70 @@
+Jenkins Notes
+
+1) installation
+- Get build from Jenkins website.
+- Install it.
+
+2) Configuration
+localhost: 8080
+
+- Create a project (Maven project).
+- Configure JDK, Maven from System configuration.
+	On top line, left. Click "Jenkins" small arraw -> get dropdown list. -> Manage Jenkins -> Configure System.
+	
+	JDK -> JDK installations , untick "Install " -> JDK Name: jdk1.8.0_77, JAVA_HOME: C:\Program Files\Java\jdk1.8.0_77
+	Maven -> Maven installations -> untick "Install" ->  Maven name: Maven, MAVEN_HOME: C:\Users\WiFiTester\Documents\apache-maven-3.3.9
+	then click "Save".
+	
+- Select project, at "Build" -> "Root POM", give your pom.xml file location.
+clean install test
+
+C:\Users\WiFiTester\Documents\SeleniumAutomation-master\webui\pom.xml
+
+- Build setting. 
+	Email notification.
+-Build Trigger.
+	Build periodically
+		* 10 * * * (This means the test runs at 10am in the morning. )
+
+3) Run now
+- Click "Build Now"
+
+4) Log
+click the build (e.g. #2) -> Console output.
+
+5) Notes
+Windows services.msc -> Jenkin -> Log on -> "Allow service to interact with desktop" , tick this. 
+(This solve the problem that Firefox not start.)
+
+6) Configure Email
+	1) On project,
+		=> Configure.
+		=> Email Notification
+			Recipients: jinhuahuang.uk@gmail.com
+	2) Jenkins => Manage Jenkins => Configure System.
+			E-mail Notification => Advanced ... =>
+			SMTP server: smtp.gmail.com
+				Use SMTP Authentication   <--- tick this.
+						User Name: jhwifitest@gmail.com
+						password: sc00terP2013
+				User SSL    <--- tick this.
+				SMTP port 465
+				
+6) Schedule example:
+* 0,8,16 * * *   (This means the test run at hour 0, 8, 16).
+
+7) Jenkins installation diretory
+C:\Program Files (x86)\Jenkins
+
+Job location:
+C:\Program Files (x86)\Jenkins\jobs
+
+8) 01/09/2016
+Install Jenkin again.
+Initial password at:
+C:\Program Files (x86)\Jenkins\secrets\initialAdminPassword
+user: admin
+pwd: ea3bc29d005d44348225d8f4ed3e24c1
+
+
+			
