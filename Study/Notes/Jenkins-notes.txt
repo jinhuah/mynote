@@ -9,7 +9,9 @@ localhost: 8080
 
 3) On Jenkins 2.7.3, you need to instal pipeline plugin. (05/09/2016)
 Jenkins -> Manage plugin -> "Available" tab -> Tick "Build pipeline plugin" -> Click "Install without restart" button.
-(Still not sure how to configure new Jenkins)
+
+4) Jenkins -> Globle toll configuration -> Maven (At the botton of the page)
+Still need to figure out how to config it.
 
 
 
