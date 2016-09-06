@@ -7,6 +7,12 @@ Jenkins Notes
 2) Configuration
 localhost: 8080
 
+3) On Jenkins 2.7.3, you need to instal pipeline plugin. (05/09/2016)
+Jenkins -> Manage plugin -> "Available" tab -> Tick "Build pipeline plugin" -> Click "Install without restart" button.
+(Still not sure how to configure new Jenkins)
+
+
+
 - Create a project (Maven project).
 - Configure JDK, Maven from System configuration.
 	On top line, left. Click "Jenkins" small arraw -> get dropdown list. -> Manage Jenkins -> Configure System.
