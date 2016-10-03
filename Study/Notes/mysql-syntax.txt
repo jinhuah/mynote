@@ -421,3 +421,13 @@ geo_long,double(7,4),YES,,NULL,
 When you use these two, you need to use "order by".
 
 select * from sig_event_long_term order by sig_event_id desc limit 10;
+
+15) Delete/Truncate all tables in a database.
+# Drop (i.e. remove tables)
+mysql -Nse 'show tables' DATABASE_NAME | while read table; do mysql -e "drop table $table" DATABASE_NAME; done
+
+# Truncate (i.e. empty tables)
+mysql -Nse 'show tables' DATABASE_NAME | while read table; do mysql -e "truncate table $table" DATABASE_NAME; done
+
+# Get database size:
+mysql> SELECT table_schema, Round(Sum(data_length + index_length) / 1024 / 1024, 1) "DB Size in MB"  FROM   information_schema.tables  GROUP  BY table_schema;
