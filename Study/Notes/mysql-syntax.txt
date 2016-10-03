@@ -431,3 +431,10 @@ mysql -Nse 'show tables' DATABASE_NAME | while read table; do mysql -e "truncate
 
 # Get database size:
 mysql> SELECT table_schema, Round(Sum(data_length + index_length) / 1024 / 1024, 1) "DB Size in MB"  FROM   information_schema.tables  GROUP  BY table_schema;
+
+16) Change user password
+update mysql.user set password=PASSWORD('staging') where User='radius_prod';
+FLUSH PRIVILEGES;
+
+17) Update a table row.
+update argo_live.apikeys set apikeys.key = 'Codq1cK1qIdoRBZLg3x6q3TnJdtIL3Zb6qPGd3j1KWqaVzZLxspcSA' where id = 1;
